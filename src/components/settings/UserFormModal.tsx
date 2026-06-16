@@ -79,7 +79,7 @@ export default function UserFormModal({
         if (data.password) {
           payload.password = data.password;
         }
-        await usersService.update(userToEdit.id, payload);
+        await usersService.update(userToEdit._id || userToEdit.id, payload);
         toast.success("User updated successfully");
       } else {
         // Create Mode

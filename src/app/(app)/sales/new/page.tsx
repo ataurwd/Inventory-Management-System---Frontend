@@ -133,6 +133,13 @@ export default function NewSalePage() {
   const changeAmount = paidAmountVal > grandTotal ? paidAmountVal - grandTotal : 0;
   const dueAmount = grandTotal > paidAmountVal ? grandTotal - paidAmountVal : 0;
 
+  // Sync paidAmount when payment method is card, bank transfer, mobile, or other
+  useEffect(() => {
+    if (paymentMethod !== "cash") {
+      setPaidAmount(grandTotal);
+    }
+  }, [paymentMethod, grandTotal]);
+
   // Sync paid amount when cash is selected or when clicking full payment
   const handleSetFullPayment = () => {
     setPaidAmount(parseFloat(grandTotal.toFixed(2)));
@@ -313,63 +320,65 @@ export default function NewSalePage() {
   ];
 
   return (
-    <div className="p-8 max-w-[1280px] mx-auto space-y-6 animate-fade-in">
+    <div className="p-4 md:p-6 lg:p-8 max-w-[1700px] mx-auto space-y-6 animate-fade-in">
       <PageHeader title="POS Checkout" breadcrumbs={breadcrumbs} />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        {/* LEFT PANEL: SEARCH & SELECTED PRODUCTS */}
-        <div className="lg:col-span-8 space-y-4">
-          
-          {/* Product Searches */}
+        {/* LEFT COLUMN: PRODUCT SEARCH (Span 3) */}
+        <div className="lg:col-span-3 space-y-4 lg:sticky lg:top-20 z-20 overflow-visible">
           <Card className="border border-border shadow-md bg-card/45 backdrop-blur-md overflow-visible">
             <CardHeader className="py-4 px-5 border-b border-border/40">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                <ShoppingCart className="h-4.5 w-4.5 text-primary animate-pulse" />
-                Select Products
+                <Search className="h-4.5 w-4.5 text-primary" />
+                Product Search
               </CardTitle>
             </CardHeader>
             <CardContent className="px-5 pb-5 pt-4 space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
-                {/* Barcode Scanner Input */}
-                <form onSubmit={handleBarcodeSubmit} className="space-y-1.5">
-                  <label htmlFor="barcode-scanner" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                    <Barcode className="h-4 w-4 text-primary" />
-                    Barcode Scanner [F2]
-                  </label>
-                  <Input
-                    id="barcode-scanner"
-                    ref={barcodeInputRef}
-                    placeholder="Scan product barcode..."
-                    value={barcodeInput}
-                    onChange={(e) => setBarcodeInput(e.target.value)}
-                    className="h-10 text-sm font-mono border-border/80 focus-visible:ring-primary"
-                  />
-                </form>
+              
+              {/* Barcode Scanner Input */}
+              <form onSubmit={handleBarcodeSubmit} className="space-y-1.5">
+                <label htmlFor="barcode-scanner" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <Barcode className="h-4 w-4 text-primary" />
+                  Barcode Scanner [F2]
+                </label>
+                <Input
+                  id="barcode-scanner"
+                  ref={barcodeInputRef}
+                  placeholder="Scan product barcode..."
+                  value={barcodeInput}
+                  onChange={(e) => setBarcodeInput(e.target.value)}
+                  className="h-10 text-sm font-mono border-border/80 focus-visible:ring-primary"
+                />
+              </form>
 
-                {/* Name AutoSearch */}
-                <div className="space-y-1.5 relative z-50">
-                  <label htmlFor="name-search" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
-                    <Search className="h-4 w-4 text-primary" />
-                    Manual Name Search
-                  </label>
-                  <Input
-                    id="name-search"
-                    ref={nameInputRef}
-                    placeholder="Search product name..."
-                    value={nameSearch}
-                    onChange={(e) => {
-                      setNameSearch(e.target.value);
-                      setShowDropdown(true);
-                    }}
-                    onFocus={() => setShowDropdown(true)}
-                    className="h-10 text-sm border-border/80 focus-visible:ring-primary"
-                  />
+              {/* Name AutoSearch */}
+              <div className="space-y-1.5 relative z-30">
+                <label htmlFor="name-search" className="text-xs font-semibold text-muted-foreground uppercase tracking-wider flex items-center gap-1.5">
+                  <Search className="h-4 w-4 text-primary" />
+                  Manual Name Search
+                </label>
+                <Input
+                  id="name-search"
+                  ref={nameInputRef}
+                  placeholder="Search product name..."
+                  value={nameSearch}
+                  onChange={(e) => {
+                    setNameSearch(e.target.value);
+                    setShowDropdown(true);
+                  }}
+                  onFocus={() => setShowDropdown(true)}
+                  className="h-10 text-sm border-border/80 focus-visible:ring-primary"
+                />
 
-                  {/* Autocomplete Dropdown list */}
-                  {showDropdown && nameSearch.trim() && (
-                    <div className="absolute top-[72px] z-[100] w-full bg-card border border-border shadow-xl rounded-xl overflow-y-auto max-h-[300px] divide-y divide-border">
+                {/* Autocomplete Dropdown list */}
+                {showDropdown && nameSearch.trim() && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-40 bg-transparent"
+                      onClick={() => setShowDropdown(false)}
+                    />
+                    <div className="absolute top-full left-0 right-0 mt-1.5 z-50 w-full bg-card border border-border shadow-xl rounded-xl overflow-y-auto max-h-[300px] divide-y divide-border">
                       {filteredProducts.length === 0 ? (
                         <div className="p-3 text-xs text-muted-foreground text-center">No products found</div>
                       ) : (
@@ -378,7 +387,7 @@ export default function NewSalePage() {
                             key={product._id || product.id}
                             type="button"
                             onClick={() => addItem(product)}
-                            className="w-full text-left p-3 hover:bg-muted/50 transition-colors flex justify-between items-center text-xs cursor-pointer"
+                            className="w-full text-left p-3 hover:bg-muted/50 transition-colors flex justify-between items-center text-xs cursor-pointer relative z-50"
                           >
                             <div>
                               <div className="font-semibold text-foreground">{product.name}</div>
@@ -394,24 +403,26 @@ export default function NewSalePage() {
                         ))
                       )}
                     </div>
-                  )}
-                </div>
-
+                  </>
+                )}
               </div>
+
             </CardContent>
           </Card>
+        </div>
 
-          {/* Cart Table List */}
+        {/* MIDDLE COLUMN: CART TABLE LIST (Span 5) */}
+        <div className="lg:col-span-5 space-y-4">
           <Card className="border border-border shadow-md overflow-hidden bg-card/30 backdrop-blur-md">
-            <div className="overflow-x-auto min-h-[300px]">
+            <div className="overflow-x-auto min-h-[450px]">
               <Table>
                 <TableHeader className="bg-muted/40">
                   <TableRow>
                     <TableHead className="text-xs font-bold uppercase tracking-wider">Product Description</TableHead>
-                    <TableHead className="w-[120px] text-right text-xs font-bold uppercase tracking-wider">Unit Price</TableHead>
-                    <TableHead className="w-[140px] text-center text-xs font-bold uppercase tracking-wider">Quantity</TableHead>
-                    <TableHead className="w-[120px] text-right text-xs font-bold uppercase tracking-wider">Line Total</TableHead>
-                    <TableHead className="w-[60px] text-right text-xs font-bold uppercase tracking-wider"></TableHead>
+                    <TableHead className="w-[80px] text-right text-xs font-bold uppercase tracking-wider">Price</TableHead>
+                    <TableHead className="w-[120px] text-center text-xs font-bold uppercase tracking-wider">Qty</TableHead>
+                    <TableHead className="w-[80px] text-right text-xs font-bold uppercase tracking-wider">Total</TableHead>
+                    <TableHead className="w-[40px] text-right text-xs font-bold uppercase tracking-wider"></TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -420,25 +431,22 @@ export default function NewSalePage() {
                       <TableCell colSpan={5} className="h-64 text-center text-xs text-muted-foreground">
                         <div className="flex flex-col items-center justify-center gap-3">
                           <ShoppingCart className="h-8 w-8 opacity-40 text-primary animate-pulse" />
-                          <p className="max-w-[250px]">Order is empty. Scan barcodes or search product names to begin.</p>
+                          <p className="max-w-[200px]">Order is empty. Scan barcodes or search product names to begin.</p>
                         </div>
                       </TableCell>
                     </TableRow>
                   ) : (
                     selectedItems.map((item, index) => (
                       <TableRow key={item.productId} className="hover:bg-muted/10 text-xs transition-colors group">
-                        <TableCell>
+                        <TableCell className="max-w-[150px]">
                           <div className="space-y-0.5">
-                            <span className="font-semibold text-foreground block group-hover:text-primary transition-colors">{item.name}</span>
-                            <div className="flex items-center gap-1.5 text-[10px] font-mono">
+                            <span className="font-semibold text-foreground block group-hover:text-primary transition-colors truncate">{item.name}</span>
+                            <div className="flex flex-wrap items-center gap-1 text-[9px] font-mono">
                               <span className="text-muted-foreground">{item.barcode}</span>
                               <span className="text-muted-foreground/50">•</span>
                               <span className={item.totalStock <= 5 ? "text-destructive font-bold" : "text-muted-foreground"}>
-                                Stock: {item.totalStock} {item.unit}
+                                Stock: {item.totalStock}
                               </span>
-                              {item.totalStock <= 5 && (
-                                <Badge variant="critical" className="h-4 py-0 text-[8px] tracking-tight bg-destructive/10 text-destructive border-none">Low Stock</Badge>
-                              )}
                             </div>
                           </div>
                         </TableCell>
@@ -446,13 +454,13 @@ export default function NewSalePage() {
                           ${item.unitPrice.toFixed(2)}
                         </TableCell>
                         <TableCell className="text-center">
-                          <div className="flex items-center justify-center gap-1.5">
+                          <div className="flex items-center justify-center gap-1">
                             <Button
                               variant="outline"
                               size="icon"
                               onClick={() => handleQuantityChange(index, item.qty - 1)}
                               disabled={item.qty <= 1}
-                              className="h-7 w-7 rounded-md border-border hover:bg-sidebar-accent/50 cursor-pointer"
+                              className="h-6.5 w-6.5 rounded-md border-border hover:bg-sidebar-accent/50 cursor-pointer"
                             >
                               -
                             </Button>
@@ -460,7 +468,7 @@ export default function NewSalePage() {
                               type="number"
                               value={item.qty}
                               onChange={(e) => handleQuantityChange(index, parseInt(e.target.value, 10))}
-                              className="h-7 w-12 text-center text-xs font-semibold p-0 border-border/80 focus-visible:ring-primary rounded-md"
+                              className="h-6.5 w-10 text-center text-xs font-semibold p-0 border-border/80 focus-visible:ring-primary rounded-md"
                               min={1}
                               max={item.totalStock}
                             />
@@ -469,7 +477,7 @@ export default function NewSalePage() {
                               size="icon"
                               onClick={() => handleQuantityChange(index, item.qty + 1)}
                               disabled={item.qty >= item.totalStock}
-                              className="h-7 w-7 rounded-md border-border hover:bg-sidebar-accent/50 cursor-pointer"
+                              className="h-6.5 w-6.5 rounded-md border-border hover:bg-sidebar-accent/50 cursor-pointer"
                             >
                               +
                             </Button>
@@ -483,7 +491,7 @@ export default function NewSalePage() {
                             variant="ghost"
                             size="icon"
                             onClick={() => handleRemoveItem(index)}
-                            className="h-7 w-7 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
+                            className="h-6.5 w-6.5 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 cursor-pointer"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
                           </Button>
@@ -496,27 +504,26 @@ export default function NewSalePage() {
             </div>
             
             {/* Legend Bar */}
-            <div className="flex items-center gap-4 text-[10px] text-muted-foreground border-t border-border/30 bg-muted/10 px-4 py-2 font-medium">
+            <div className="flex items-center gap-3 text-[10px] text-muted-foreground border-t border-border/30 bg-muted/10 px-3 py-2 font-medium">
               <div className="flex items-center gap-1">
                 <Keyboard className="h-3.5 w-3.5 text-primary" />
                 <span>Hotkeys:</span>
               </div>
-              <div><kbd className="px-1.5 py-0.5 border rounded-sm bg-background">F2</kbd> Focus Barcode</div>
-              <div><kbd className="px-1.5 py-0.5 border rounded-sm bg-background">Enter</kbd> (in barcode field) Add Product</div>
+              <div><kbd className="px-1.5 py-0.5 border rounded bg-background">F2</kbd> Focus Barcode</div>
+              <div><kbd className="px-1.5 py-0.5 border rounded bg-background">Enter</kbd> Add</div>
             </div>
           </Card>
-
         </div>
 
-        {/* RIGHT PANEL: STICKY ORDER CHECKOUT SUMMARY */}
-        <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-20">
+        {/* RIGHT COLUMN: STICKY ORDER CHECKOUT SUMMARY (Span 4) */}
+        <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-20 z-10">
           
           {/* Customer info card */}
-          <Card className="border border-border shadow-md bg-card/45 backdrop-blur-md">
+          {/* <Card className="border border-border shadow-md bg-card/45 backdrop-blur-md">
             <CardHeader className="py-4 px-5 border-b border-border/40">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <User className="h-4.5 w-4.5 text-primary" />
-                Customer details
+                Customer Details 1
               </CardTitle>
             </CardHeader>
             <CardContent className="p-5 space-y-3">
@@ -546,7 +553,7 @@ export default function NewSalePage() {
                 />
               </div>
             </CardContent>
-          </Card>
+          </Card> */}
 
           {/* Checkout Totals & Submit */}
           <Card className="border border-border shadow-md bg-card/45 backdrop-blur-md">
@@ -601,7 +608,7 @@ export default function NewSalePage() {
               </div>
 
               {/* Payment configs */}
-              <div className="space-y-3 text-xs pt-1 border-t border-border/30">
+              <div className="space-y-3 text-xs pt-1 border-t border-t-border/30">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
                     <label htmlFor="payment-method-pos" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider block">Method</label>
@@ -633,49 +640,51 @@ export default function NewSalePage() {
                   </div>
                 </div>
 
-                <div className="space-y-1.5 pt-1">
-                  <div className="flex justify-between items-center">
-                    <label htmlFor="paid-amount" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
-                      <Coins className="h-3.5 w-3.5 text-primary" />
-                      Cash Given ($)
-                    </label>
-                    <button
-                      type="button"
-                      onClick={handleSetFullPayment}
-                      className="text-[10px] text-primary hover:underline font-bold bg-transparent border-none cursor-pointer p-0"
-                    >
-                      Exact Payment
-                    </button>
-                  </div>
-                  <Input
-                    id="paid-amount"
-                    type="number"
-                    value={paidAmount || ""}
-                    onChange={(e) => setPaidAmount(Math.max(0, parseFloat(e.target.value) || 0))}
-                    className="h-9 text-xs text-right border-border/80 font-bold text-foreground focus-visible:ring-primary"
-                    min={0}
-                  />
-
-                  {/* Quick Cash Suggestions */}
-                  {grandTotal > 0 && (
-                    <div className="flex flex-wrap gap-1 mt-1.5">
-                      {getQuickCashSuggestions(grandTotal).map((cash) => (
-                        <button
-                          key={cash}
-                          type="button"
-                          onClick={() => setPaidAmount(cash)}
-                          className={`px-2 py-1 text-[10px] font-semibold border rounded-lg cursor-pointer transition-all ${
-                            paidAmount === cash
-                              ? "bg-primary text-primary-foreground border-primary shadow-xs scale-95"
-                              : "bg-background text-muted-foreground border-border hover:bg-muted/50 hover:text-foreground"
-                          }`}
-                        >
-                          {cash === grandTotal ? "Exact" : `$${cash}`}
-                        </button>
-                      ))}
+                {paymentMethod === "cash" && (
+                  <div className="space-y-1.5 pt-1 animate-fade-in">
+                    <div className="flex justify-between items-center">
+                      <label htmlFor="paid-amount" className="text-[10px] font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+                        <Coins className="h-3.5 w-3.5 text-primary" />
+                        Cash Given ($)
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleSetFullPayment}
+                        className="text-[10px] text-primary hover:underline font-bold bg-transparent border-none cursor-pointer p-0"
+                      >
+                        Exact Payment
+                      </button>
                     </div>
-                  )}
-                </div>
+                    <Input
+                      id="paid-amount"
+                      type="number"
+                      value={paidAmount || ""}
+                      onChange={(e) => setPaidAmount(Math.max(0, parseFloat(e.target.value) || 0))}
+                      className="h-9 text-xs text-right border-border/80 font-bold text-foreground focus-visible:ring-primary"
+                      min={0}
+                    />
+
+                    {/* Quick Cash Suggestions */}
+                    {grandTotal > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5">
+                        {getQuickCashSuggestions(grandTotal).map((cash) => (
+                          <button
+                            key={cash}
+                            type="button"
+                            onClick={() => setPaidAmount(cash)}
+                            className={`px-2 py-1 text-[10px] font-semibold border rounded-lg cursor-pointer transition-all ${
+                              paidAmount === cash
+                                ? "bg-primary text-primary-foreground border-primary shadow-xs scale-95"
+                                : "bg-background text-muted-foreground border-border hover:bg-muted/50 hover:text-foreground"
+                            }`}
+                          >
+                            {cash === grandTotal ? "Exact" : `$${cash}`}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {/* Ledger calculations return / due amount panels */}
                 <div className="space-y-2 pt-2 border-t border-border/30">
@@ -719,7 +728,7 @@ export default function NewSalePage() {
                           </span>
                         </div>
                         <div className="text-2xl font-black font-mono tracking-tight">
-                          $0.00
+                          ${paidAmountVal.toFixed(2)}
                         </div>
                         <span className="text-[9px] font-medium opacity-80">
                           No change or balance due.

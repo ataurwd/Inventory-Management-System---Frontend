@@ -222,53 +222,56 @@ export default function SettingsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((targetUser) => (
-                    <TableRow key={targetUser.id} className="hover:bg-muted/15 transition-all duration-200 border-b border-border/40 group">
-                      <TableCell className="font-semibold text-foreground py-3.5">
-                        {targetUser.name}
-                        {targetUser.id === user?.id && (
-                          <span className="ml-2 text-[9px] bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
-                            You
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-muted-foreground text-xs font-mono">{targetUser.email}</TableCell>
-                      <TableCell>{getRoleBadge(targetUser.role)}</TableCell>
-                      <TableCell className="text-muted-foreground text-xs font-mono">
-                        {targetUser.lastLogin ? (
-                          format(parseISO(targetUser.lastLogin as any), "MMM dd, yyyy HH:mm")
-                        ) : (
-                          <span className="text-muted-foreground/35 italic">Never logged in</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-1.5 opacity-85 group-hover:opacity-100 transition-opacity">
-                          <Button
-                            variant="ghost"
-                            size="icon-sm"
-                            onClick={() => handleEditUserClick(targetUser)}
-                            className="h-8 w-8 hover:text-primary cursor-pointer hover:bg-sidebar-accent/30 rounded-lg"
-                            title="Edit User"
-                          >
-                            <Pencil className="h-4 w-4" />
-                            <span className="sr-only">Edit</span>
-                          </Button>
-                          {isAdmin && targetUser.id !== user?.id && (
+                  {users.map((targetUser) => {
+                    const targetUserId = targetUser._id || targetUser.id;
+                    return (
+                      <TableRow key={targetUserId} className="hover:bg-muted/15 transition-all duration-200 border-b border-border/40 group">
+                        <TableCell className="font-semibold text-foreground py-3.5">
+                          {targetUser.name}
+                          {targetUserId === user?.id && (
+                            <span className="ml-2 text-[9px] bg-primary/10 text-primary border border-primary/20 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                              You
+                            </span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-muted-foreground text-xs font-mono">{targetUser.email}</TableCell>
+                        <TableCell>{getRoleBadge(targetUser.role)}</TableCell>
+                        <TableCell className="text-muted-foreground text-xs font-mono">
+                          {targetUser.lastLogin ? (
+                            format(parseISO(targetUser.lastLogin as any), "MMM dd, yyyy HH:mm")
+                          ) : (
+                            <span className="text-muted-foreground/35 italic">Never logged in</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-1.5 opacity-85 group-hover:opacity-100 transition-opacity">
                             <Button
                               variant="ghost"
                               size="icon-sm"
-                              onClick={() => setDeleteId(targetUser.id)}
-                              className="h-8 w-8 hover:text-destructive cursor-pointer hover:bg-destructive/10 rounded-lg"
-                              title="Delete Account"
+                              onClick={() => handleEditUserClick(targetUser)}
+                              className="h-8 w-8 hover:text-primary cursor-pointer hover:bg-sidebar-accent/30 rounded-lg"
+                              title="Edit User"
                             >
-                              <Trash2 className="h-4 w-4" />
-                              <span className="sr-only">Delete</span>
+                              <Pencil className="h-4 w-4" />
+                              <span className="sr-only">Edit</span>
                             </Button>
-                          )}
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                            {isAdmin && targetUserId !== user?.id && (
+                              <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                onClick={() => setDeleteId(targetUserId)}
+                                className="h-8 w-8 hover:text-destructive cursor-pointer hover:bg-destructive/10 rounded-lg"
+                                title="Delete Account"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                                <span className="sr-only">Delete</span>
+                              </Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
