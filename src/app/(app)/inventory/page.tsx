@@ -8,6 +8,8 @@ import { useProducts } from "@/hooks/useProducts";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, RotateCcw, Box } from "lucide-react";
+import useSWR from "swr";
+import { brandsService } from "@/services/brands.service";
 
 function InventoryPageContent() {
   const router = useRouter();
@@ -17,9 +19,16 @@ function InventoryPageContent() {
   const [search, setSearch] = useState(() => searchParams.get("search") || "");
   const [debouncedSearch, setDebouncedSearch] = useState(() => searchParams.get("search") || "");
   const [category, setCategory] = useState(() => searchParams.get("category") || "");
+  const [brand, setBrand] = useState(() => searchParams.get("brand") || "");
   const [status, setStatus] = useState(() => searchParams.get("status") || "all");
 
-  const updateUrl = (newFilters: { search?: string; category?: string; status?: string }) => {
+  // Fetch brands list dynamically from database
+  const { data: brandsData } = useSWR(
+    "/brands",
+    () => brandsService.getAll()
+  );
+
+  const updateUrl = (newFilters: { search?: string; category?: string; brand?: string; status?: string }) => {
     const params = new URLSearchParams(searchParams.toString());
     
     if (newFilters.search !== undefined) {
@@ -30,6 +39,11 @@ function InventoryPageContent() {
     if (newFilters.category !== undefined) {
       if (newFilters.category) params.set("category", newFilters.category);
       else params.delete("category");
+    }
+
+    if (newFilters.brand !== undefined) {
+      if (newFilters.brand) params.set("brand", newFilters.brand);
+      else params.delete("brand");
     }
     
     if (newFilters.status !== undefined) {
@@ -53,6 +67,7 @@ function InventoryPageContent() {
   const { products, isLoading, mutate } = useProducts({
     search: debouncedSearch,
     category: category || undefined,
+    brand: brand || undefined,
     status: status !== "all" ? status : undefined,
   });
 
@@ -65,6 +80,7 @@ function InventoryPageContent() {
   const handleReset = () => {
     setSearch("");
     setCategory("");
+    setBrand("");
     setStatus("all");
     router.replace(pathname);
   };
@@ -74,10 +90,10 @@ function InventoryPageContent() {
     { label: "Inventory" }
   ];
 
-  const hasActiveFilters = search !== "" || category !== "" || status !== "all";
+  const hasActiveFilters = search !== "" || category !== "" || brand !== "" || status !== "all";
 
   return (
-    <div className="p-8 max-w-[1200px] mx-auto space-y-6 animate-fade-in">
+    <div className="p-8 max-w-[1500px] mx-auto space-y-6 animate-fade-in">
       <PageHeader
         title="Inventory Catalog"
         breadcrumbs={breadcrumbs}
@@ -117,6 +133,27 @@ function InventoryPageContent() {
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
                   {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Brand Dropdown */}
+          <div className="w-full md:w-48">
+            <select
+              id="brand-filter"
+              className="flex h-9 w-full rounded-lg border border-border/80 bg-background px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+              value={brand}
+              onChange={(e) => {
+                const val = e.target.value;
+                setBrand(val);
+                updateUrl({ brand: val });
+              }}
+            >
+              <option value="">All Brands</option>
+              {brandsData?.map((b) => (
+                <option key={b._id} value={b.name}>
+                  {b.name}
                 </option>
               ))}
             </select>
@@ -186,7 +223,7 @@ function InventoryPageContent() {
 export default function InventoryPage() {
   return (
     <Suspense fallback={
-      <div className="p-8 max-w-[1200px] mx-auto text-center py-20 text-muted-foreground text-xs">
+      <div className="p-8 max-w-[1500px] mx-auto text-center py-20 text-muted-foreground text-xs">
         Loading catalog...
       </div>
     }>

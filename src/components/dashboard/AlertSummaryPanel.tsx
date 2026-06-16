@@ -61,7 +61,7 @@ export default function AlertSummaryPanel() {
   const topAlerts = alerts.slice(0, 5);
 
   return (
-    <Card className="flex flex-col h-full border-border shadow-sm">
+    <Card className="flex flex-col h-full clay border-none">
       <CardHeader>
         <CardTitle className="text-base font-semibold">System Alerts</CardTitle>
         <CardDescription>

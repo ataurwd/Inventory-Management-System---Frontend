@@ -195,7 +195,7 @@ export default function ProductDetailPage() {
         {/* Safety Level */}
         <div className="bg-card border border-border rounded-xl p-5 shadow-sm space-y-2">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-muted-foreground font-medium">Safety Level</span>
+            <span className="text-sm text-muted-foreground font-medium">Min Stock</span>
             <div className="p-2 bg-amber-500/10 rounded-lg text-amber-500">
               <ShieldCheck className="h-4 w-4" />
             </div>
@@ -237,6 +237,10 @@ export default function ProductDetailPage() {
             <div className="space-y-1">
               <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Barcode</span>
               <p className="font-mono text-base font-semibold text-foreground mt-0.5">{product.barcode}</p>
+            </div>
+            <div className="space-y-1">
+              <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Brand</span>
+              <p className="text-base font-semibold text-foreground mt-0.5">{product.brand || "N/A"}</p>
             </div>
             <div className="space-y-1">
               <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider">Category</span>

@@ -25,7 +25,7 @@ export default function KpiTile({
   subtextType = "default",
 }: KpiTileProps) {
   return (
-    <Card className="p-6 relative overflow-hidden transition-all duration-300 hover:shadow-md hover:ring-foreground/20">
+    <Card className="p-6 relative overflow-hidden clay border-none">
       <div className="flex justify-between items-start">
         <div className="space-y-2">
           <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider block">

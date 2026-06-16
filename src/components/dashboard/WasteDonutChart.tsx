@@ -25,7 +25,7 @@ export default function WasteDonutChart({ data, className }: WasteDonutChartProp
   }));
 
   return (
-    <Card className={className}>
+    <Card className={`clay border-none ${className}`}>
       <CardHeader>
         <CardTitle className="text-base font-semibold">Waste Risk by Category</CardTitle>
         <CardDescription>

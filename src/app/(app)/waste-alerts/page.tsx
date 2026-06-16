@@ -61,7 +61,7 @@ export default function WasteAlertsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 my-10 max-w-7xl mx-auto">
       <PageHeader 
         title="Waste & Expiry Alerts" 
         breadcrumbs={[{ label: 'Dashboard', href: '/dashboard' }, { label: 'Waste Alerts' }]}

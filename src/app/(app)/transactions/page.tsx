@@ -220,10 +220,10 @@ export default function TransactionsPage() {
       </Card>
 
       {/* Transaction Logs Table */}
-      <Card className="border border-border shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
+      <Card className="border border-border bg-card/45 backdrop-blur-md overflow-hidden shadow-md hover:shadow-lg transition-all hover:border-primary/20 duration-300 rounded-2xl">
+        <div className="overflow-x-auto bg-background/30">
           <Table>
-            <TableHeader className="bg-muted/40">
+            <TableHeader className="bg-muted/40 border-b border-border/40">
               <TableRow>
                 <TableHead className="w-[160px] text-xs font-bold uppercase tracking-wider">Date & Time</TableHead>
                 <TableHead className="text-xs font-bold uppercase tracking-wider">Product</TableHead>
@@ -253,8 +253,8 @@ export default function TransactionsPage() {
                 </TableRow>
               ) : (
                 transactions.map((item) => (
-                  <TableRow key={item._id} className="hover:bg-muted/20 text-xs">
-                    <TableCell className="font-mono text-muted-foreground whitespace-nowrap">
+                  <TableRow key={item._id} className="hover:bg-muted/15 transition-all duration-200 border-b border-border/40 text-xs">
+                    <TableCell className="font-mono text-muted-foreground whitespace-nowrap text-[11px]">
                       {format(new Date(item.timestamp), "MMM dd, yyyy HH:mm")}
                     </TableCell>
                     <TableCell>
@@ -270,17 +270,17 @@ export default function TransactionsPage() {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={typeBadgeVariants[item.type]} className="capitalize">
+                      <Badge variant={typeBadgeVariants[item.type]} className="capitalize text-[10px] px-2 py-0.5">
                         {item.type}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right font-medium">
+                    <TableCell className="text-right font-medium font-mono text-[11px]">
                       {item.qty} {item.productId?.unit}
                     </TableCell>
-                    <TableCell className="text-right text-muted-foreground">
+                    <TableCell className="text-right text-muted-foreground font-mono text-[11px]">
                       ${item.unitPrice.toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-right font-bold text-foreground">
+                    <TableCell className="text-right font-bold text-foreground font-mono">
                       ${item.total.toFixed(2)}
                     </TableCell>
                     <TableCell className="text-muted-foreground whitespace-nowrap">

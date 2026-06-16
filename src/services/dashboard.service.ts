@@ -5,7 +5,18 @@ export interface DashboardStats {
   todayRevenue: number;
   totalLowStockAlerts: number;
   totalExpiryAlerts: number;
+  inventoryValuation: number;
   weeklyRevenue: { date: string; revenue: number }[];
+  salesVsPurchases: { date: string; sales: number; purchases: number }[];
+  profitOrLoss: number;
+  recentTransactions: any[];
+  topSellingProducts: {
+    productId: string;
+    name: string;
+    category: string;
+    totalQty: number;
+    totalRevenue: number;
+  }[];
 }
 
 export interface WasteRiskItem {

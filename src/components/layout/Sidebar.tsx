@@ -20,6 +20,7 @@ import {
   X,
   Layers,
   ChevronDown,
+  ShoppingBag,
 } from "lucide-react";
 
 interface SubNavItem {
@@ -72,12 +73,22 @@ export default function Sidebar() {
           name: "Categories List",
           href: "/inventory/categories",
         },
+        {
+          name: "Brands List",
+          href: "/inventory/brands",
+        },
       ],
     },
     {
       name: "Scan",
       href: "/scan",
       icon: ScanBarcode,
+      roles: ["admin", "manager", "cashier"],
+    },
+    {
+      name: "Sales",
+      href: "/sales",
+      icon: ShoppingBag,
       roles: ["admin", "manager", "cashier"],
     },
     {

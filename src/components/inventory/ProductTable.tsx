@@ -71,7 +71,7 @@ export default function ProductTable({ products, isLoading, onDeleteSuccess }: P
       <div className="w-full max-w-[140px] space-y-1">
         <div className="flex items-center justify-between text-[10px]">
           <span className="font-semibold text-foreground">{stock} units</span>
-          <span className="text-muted-foreground font-medium">Goal: {safety}</span>
+          <span className="text-muted-foreground font-medium">Min: {safety}</span>
         </div>
         <div className="h-1.5 w-full bg-secondary border border-border/10 rounded-full overflow-hidden">
           <div 
@@ -140,9 +140,9 @@ export default function ProductTable({ products, isLoading, onDeleteSuccess }: P
 
   return (
     <>
-      <div className="rounded-2xl border border-border/70 bg-card/45 backdrop-blur-md overflow-hidden shadow-sm hover:shadow-md transition-all">
+      <div className="rounded-2xl border border-border bg-card/45 backdrop-blur-md overflow-hidden shadow-md hover:shadow-lg transition-all hover:border-primary/20 duration-300">
         <Table>
-          <TableHeader className="bg-sidebar/25 border-b border-border/40">
+          <TableHeader className="bg-muted/40 border-b border-border/40">
             <TableRow>
               <TableHead className="font-bold text-xs">Product Details</TableHead>
               <TableHead className="font-bold text-xs">Barcode</TableHead>
@@ -154,21 +154,28 @@ export default function ProductTable({ products, isLoading, onDeleteSuccess }: P
           </TableHeader>
           <TableBody>
             {products.map((product) => (
-              <TableRow key={product._id} className="hover:bg-sidebar-accent/10 transition-colors group">
+              <TableRow key={product._id} className="hover:bg-muted/15 transition-all duration-200 group border-b border-border/40">
                 <TableCell className="py-3.5">
                   <div className="flex items-center gap-3">
                     <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 border border-primary/15 text-primary transition-all group-hover:scale-105 shadow-inner">
                       <Package className="h-4.5 w-4.5" />
                     </div>
                     <div className="flex flex-col min-w-0">
-                      <Link 
-                        href={`/inventory/${product._id}`}
-                        className="font-semibold text-sm text-foreground hover:text-primary transition-colors truncate"
-                      >
-                        {product.name}
-                      </Link>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <Link 
+                          href={`/inventory/${product._id}`}
+                          className="font-semibold text-sm text-foreground hover:text-primary transition-colors truncate"
+                        >
+                          {product.name}
+                        </Link>
+                        {product.brand && (
+                          <span className="text-[9px] bg-muted px-1.5 py-0.5 border rounded-sm font-medium text-muted-foreground uppercase tracking-wider">
+                            {product.brand}
+                          </span>
+                        )}
+                      </div>
                       <span className="text-[10px] text-muted-foreground">
-                        Unit: {product.unit || "pcs"} | Cost: ${product.costPrice.toFixed(2)}
+                        Unit: {product.unit || "pcs"} | Cost: ${product.costPrice.toFixed(2)} | Price: ${product.sellingPrice.toFixed(2)}
                       </span>
                     </div>
                   </div>
@@ -180,7 +187,7 @@ export default function ProductTable({ products, isLoading, onDeleteSuccess }: P
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant="outline" className="border-border/60 hover:bg-transparent capitalize text-[10px]">
+                  <Badge variant="outline" className="border-border/60 hover:bg-transparent capitalize text-[10px] px-2 py-0.5">
                     {product.category}
                   </Badge>
                 </TableCell>
@@ -193,12 +200,12 @@ export default function ProductTable({ products, isLoading, onDeleteSuccess }: P
                 <TableCell className="text-right py-3.5">
                   <div className="flex justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
                     <Link href={`/inventory/${product._id}`} passHref>
-                      <Button variant="ghost" size="icon-sm" title="View Details" className="hover:text-primary cursor-pointer hover:bg-sidebar-accent/30">
+                      <Button variant="ghost" size="icon-sm" title="View Details" className="h-8 w-8 hover:text-primary cursor-pointer hover:bg-sidebar-accent/30 rounded-lg">
                         <Eye className="h-4 w-4" />
                       </Button>
                     </Link>
                     <Link href={`/inventory/${product._id}?edit=true`} passHref>
-                      <Button variant="ghost" size="icon-sm" title="Edit Product" className="hover:text-primary cursor-pointer hover:bg-sidebar-accent/30">
+                      <Button variant="ghost" size="icon-sm" title="Edit Product" className="h-8 w-8 hover:text-primary cursor-pointer hover:bg-sidebar-accent/30 rounded-lg">
                         <Pencil className="h-4 w-4" />
                       </Button>
                     </Link>
@@ -207,7 +214,7 @@ export default function ProductTable({ products, isLoading, onDeleteSuccess }: P
                       size="icon-sm"
                       title="Delete Product"
                       onClick={() => handleDeleteClick(product)}
-                      className="hover:text-destructive cursor-pointer hover:bg-destructive/10"
+                      className="h-8 w-8 hover:text-destructive cursor-pointer hover:bg-destructive/10 rounded-lg"
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>

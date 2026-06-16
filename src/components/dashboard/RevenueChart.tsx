@@ -28,7 +28,7 @@ export default function RevenueChart({ data, className }: RevenueChartProps) {
   };
 
   return (
-    <Card className={className}>
+    <Card className={`clay border-none ${className}`}>
       <CardHeader>
         <CardTitle className="text-base font-semibold">Weekly Revenue</CardTitle>
         <CardDescription>

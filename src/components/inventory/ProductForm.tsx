@@ -5,72 +5,112 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { productsService } from "@/services/products.service";
 import { categoriesService } from "@/services/categories.service";
+import { brandsService } from "@/services/brands.service";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import useSWR from "swr";
 import { toast } from "sonner";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import Link from "next/link";
 import { useSuppliers } from "@/hooks/useSuppliers";
 import { useAuth } from "@/hooks/useAuth";
+import { InfoTooltip } from "@/components/ui/tooltip";
 
 import { Product, Batch } from "@/types/product.types";
 
-const productSchema = z
-  .object({
-    name: z.string().min(1, "Product name is required"),
-    barcode: z.string().min(8, "Barcode must be at least 8 characters"),
-    category: z.string().min(1, "Category is required"),
-    unit: z.string().min(1, "Unit is required"),
-    costPrice: z.number({ message: "Cost price is required and must be a number" }).nonnegative("Cost price cannot be negative"),
-    sellingPrice: z.number({ message: "Selling price is required and must be a number" }).nonnegative("Selling price cannot be negative"),
-    safetyStockLevel: z.number({ message: "Safety stock level must be a number" }).nonnegative("Safety stock level cannot be negative"),
-    initialStock: z.union([z.number(), z.nan()]).optional(),
-    expiryDate: z.string().optional(),
-    supplierId: z.string().or(z.literal("")).nullable().optional(),
-  })
-  .refine(
-    (data) => {
-      if (data.initialStock !== undefined && !Number.isNaN(data.initialStock)) {
-        return data.initialStock >= 0;
-      }
-      return true;
-    },
-    {
-      message: "Initial stock cannot be negative",
-      path: ["initialStock"],
-    }
-  )
-  .refine(
-    (data) => {
-      const hasStock = data.initialStock !== undefined && !Number.isNaN(data.initialStock) && data.initialStock > 0;
-      if (hasStock) {
-        return !!data.expiryDate && data.expiryDate.trim() !== "";
-      }
-      return true;
-    },
-    {
-      message: "Expiry date is required when initial stock is specified",
-      path: ["expiryDate"],
-    }
-  )
-  .refine(
-    (data) => {
-      if (!data.expiryDate || data.expiryDate.trim() === "") return true;
-      const expiry = new Date(data.expiryDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      return expiry > today;
-    },
-    {
-      message: "Expiry date must be in the future",
-      path: ["expiryDate"],
-    }
-  );
+const numberRequired = (fieldName: string) =>
+  z
+    .number({
+      message: `${fieldName} is required`,
+    })
+    .refine((val) => !Number.isNaN(val), `${fieldName} is required`)
+    .refine((val) => val >= 0, `${fieldName} cannot be negative`);
 
-type ProductFormValues = z.infer<typeof productSchema>;
+const getProductSchema = (isEdit: boolean, hasMultipleBatches: boolean) => {
+  const isStockRequired = !(isEdit && hasMultipleBatches);
+
+  return z
+    .object({
+      name: z.string().min(1, "Product name is required"),
+      barcode: z.string().min(8, "Barcode must be at least 8 characters"),
+      category: z.string().min(1, "Category is required"),
+      unit: z.string().min(1, "Unit is required"),
+      brand: z.string().optional().default(""),
+      costPrice: numberRequired("Cost price"),
+      sellingPrice: numberRequired("Selling price"),
+      safetyStockLevel: numberRequired("Min stock"),
+      initialStock: z.union([z.number(), z.nan()]).optional(),
+      expiryDate: z.string().optional(),
+      supplierId: z.string().or(z.literal("")).nullable().optional(),
+    })
+    .refine(
+      (data) => {
+        if (!isStockRequired) return true;
+        const val = data.initialStock;
+        return val !== undefined && !Number.isNaN(val);
+      },
+      {
+        message: "Stock quantity is required",
+        path: ["initialStock"],
+      }
+    )
+    .refine(
+      (data) => {
+        if (!isStockRequired) return true;
+        const val = data.initialStock;
+        return val === undefined || Number.isNaN(val) || val >= 0;
+      },
+      {
+        message: "Stock quantity cannot be negative",
+        path: ["initialStock"],
+      }
+    )
+    .refine(
+      (data) => {
+        if (!isStockRequired) return true;
+        const qty = data.initialStock;
+        const hasStock = qty !== undefined && !Number.isNaN(qty) && qty > 0;
+        if (hasStock) {
+          return !!data.expiryDate && data.expiryDate.trim() !== "";
+        }
+        return true;
+      },
+      {
+        message: "Expiry date is required when stock is specified",
+        path: ["expiryDate"],
+      }
+    )
+    .refine(
+      (data) => {
+        if (!isStockRequired) return true;
+        if (!data.expiryDate || data.expiryDate.trim() === "") return true;
+        const expiry = new Date(data.expiryDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return expiry > today;
+      },
+      {
+        message: "Expiry date must be in the future",
+        path: ["expiryDate"],
+      }
+    );
+};
+
+type ProductFormValues = {
+  name: string;
+  barcode: string;
+  category: string;
+  unit: string;
+  brand?: string;
+  costPrice: number;
+  sellingPrice: number;
+  safetyStockLevel: number;
+  initialStock?: number;
+  expiryDate?: string;
+  supplierId?: string | null;
+};
 
 interface ProductFormProps {
   onSuccess: (newProduct?: Product) => void;
@@ -104,8 +144,21 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
     () => categoriesService.getAll()
   );
 
+  // Fetch brands list dynamically from database
+  const { data: brandsData } = useSWR(
+    "/brands",
+    () => brandsService.getAll()
+  );
+
   // Fetch suppliers list dynamically from database
   const { suppliers } = useSuppliers();
+
+  const isEdit = !!productToEdit;
+  const hasMultipleBatches = productToEdit ? productToEdit.batches.length > 1 : false;
+
+  const dynamicSchema = useMemo(() => {
+    return getProductSchema(isEdit, hasMultipleBatches);
+  }, [isEdit, hasMultipleBatches]);
 
   const {
     register,
@@ -114,12 +167,13 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
     formState: { errors },
     reset,
   } = useForm<ProductFormValues>({
-    resolver: zodResolver(productSchema),
+    resolver: zodResolver(dynamicSchema),
     defaultValues: {
       name: productToEdit?.name || "",
       barcode: productToEdit?.barcode || "",
       category: productToEdit?.category || "",
       unit: productToEdit?.unit || "pcs",
+      brand: productToEdit?.brand || "",
       costPrice: productToEdit?.costPrice,
       sellingPrice: productToEdit?.sellingPrice,
       safetyStockLevel: productToEdit?.safetyStockLevel ?? 0,
@@ -149,6 +203,7 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
         barcode: productToEdit.barcode,
         category: productToEdit.category,
         unit: productToEdit.unit,
+        brand: productToEdit.brand || "",
         costPrice: productToEdit.costPrice,
         sellingPrice: productToEdit.sellingPrice,
         safetyStockLevel: productToEdit.safetyStockLevel,
@@ -256,14 +311,14 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Name */}
         <div className="space-y-2 md:col-span-2">
-          <Label htmlFor="name">Product Name</Label>
+          <Label htmlFor="name" className="flex items-center gap-1">Product Name <span className="text-destructive">*</span> <InfoTooltip content="The display name of the product as it will appear in search results, invoices, and reports." /></Label>
           <Input id="name" placeholder="e.g. Milk Powder 1kg" {...register("name")} />
           {errors.name && <p className="text-xs text-destructive">{errors.name.message}</p>}
         </div>
 
         {/* Barcode */}
         <div className="space-y-2">
-          <Label htmlFor="barcode">Barcode</Label>
+          <Label htmlFor="barcode" className="flex items-center gap-1">Barcode <InfoTooltip content="The unique code scanned for sales checkout, restocking, and tracking." /></Label>
           <div className="flex gap-2">
             <Input
               id="barcode"
@@ -293,7 +348,7 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
 
         {/* Unit */}
         <div className="space-y-2">
-          <Label htmlFor="unit">Unit</Label>
+          <Label htmlFor="unit" className="flex items-center gap-1">Unit <InfoTooltip content="The measurement unit used for stock counts (e.g. pieces, kilograms, liters)." /></Label>
           <select
             id="unit"
             className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
@@ -316,7 +371,7 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
         {/* Category */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <Label htmlFor="category">Category</Label>
+            <Label htmlFor="category" className="flex items-center gap-1">Category <span className="text-destructive">*</span> <InfoTooltip content="The grouping class used to filter product catalogs and group statistics." /></Label>
             <Link
               href="/inventory/categories"
               className="text-xs text-primary hover:underline cursor-pointer"
@@ -340,10 +395,37 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
           {errors.category && <p className="text-xs text-destructive">{errors.category.message}</p>}
         </div>
 
+        {/* Brand */}
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <Label htmlFor="brand" className="flex items-center gap-1">Brand <InfoTooltip content="The manufacturer or label of this product, used for catalog organization and analytics." /></Label>
+            <Link
+              href="/inventory/brands"
+              className="text-xs text-primary hover:underline cursor-pointer"
+            >
+              Manage list
+            </Link>
+          </div>
+
+          <select
+            id="brand"
+            className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+            {...register("brand")}
+          >
+            <option value="">Select a brand (Optional)</option>
+            {brandsData?.map((brand) => (
+              <option key={brand._id} value={brand.name}>
+                {brand.name}
+              </option>
+            ))}
+          </select>
+          {errors.brand && <p className="text-xs text-destructive">{errors.brand.message}</p>}
+        </div>
+
         {/* Supplier */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
-            <Label htmlFor="supplierId">Supplier</Label>
+            <Label htmlFor="supplierId" className="flex items-center gap-1">Supplier <InfoTooltip content="The primary merchant from whom this product is sourced and restocked." /></Label>
             {user?.role === "admin" && (
               <Link
                 href="/suppliers"
@@ -371,21 +453,21 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
 
         {/* Safety Stock Level */}
         <div className="space-y-2">
-          <Label htmlFor="safetyStockLevel">Safety Stock Level</Label>
+          <Label htmlFor="safetyStockLevel" className="flex items-center gap-1">Min Stock <span className="text-destructive">*</span> <InfoTooltip content="The minimum required stock level threshold. Falling below this triggers reorder alerts." /></Label>
           <Input id="safetyStockLevel" type="number" {...register("safetyStockLevel", { valueAsNumber: true })} />
           {errors.safetyStockLevel && <p className="text-xs text-destructive">{errors.safetyStockLevel.message}</p>}
         </div>
 
         {/* Cost Price */}
         <div className="space-y-2">
-          <Label htmlFor="costPrice">Cost Price ($)</Label>
+          <Label htmlFor="costPrice" className="flex items-center gap-1">Cost Price ($) <span className="text-destructive">*</span> <InfoTooltip content="The wholesale purchase price paid to the supplier per unit of this product." /></Label>
           <Input id="costPrice" type="number" step="0.01" placeholder="0.00" {...register("costPrice", { valueAsNumber: true })} />
           {errors.costPrice && <p className="text-xs text-destructive">{errors.costPrice.message}</p>}
         </div>
 
         {/* Selling Price */}
         <div className="space-y-2">
-          <Label htmlFor="sellingPrice">Selling Price ($)</Label>
+          <Label htmlFor="sellingPrice" className="flex items-center gap-1">Selling Price ($) <span className="text-destructive">*</span> <InfoTooltip content="The retail price charged to customers per unit at POS checkout." /></Label>
           <Input id="sellingPrice" type="number" step="0.01" placeholder="0.00" {...register("sellingPrice", { valueAsNumber: true })} />
           {errors.sellingPrice && <p className="text-xs text-destructive">{errors.sellingPrice.message}</p>}
         </div>
@@ -394,20 +476,21 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
         {(!productToEdit || productToEdit.batches.length <= 1) ? (
           <>
             <div className="space-y-2">
-              <Label htmlFor="initialStock">
-                {productToEdit ? "Stock Quantity" : "Initial Stock Quantity"}
+              <Label htmlFor="initialStock" className="flex items-center gap-1">
+                Stock Quantity <span className="text-destructive">*</span>
+                <InfoTooltip content="The current physical stock count available in inventory storage." />
               </Label>
               <Input
                 id="initialStock"
                 type="number"
-                placeholder={productToEdit ? "0" : "e.g. 100 (optional)"}
+                placeholder="0"
                 {...register("initialStock", { valueAsNumber: true })}
               />
               {errors.initialStock && <p className="text-xs text-destructive">{errors.initialStock.message}</p>}
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="expiryDate">Expiry Date</Label>
+              <Label htmlFor="expiryDate" className="flex items-center gap-1">Expiry Date <InfoTooltip content="The expiration date of the batch. Products near expiry trigger warnings." /></Label>
               <Input
                 id="expiryDate"
                 type="date"

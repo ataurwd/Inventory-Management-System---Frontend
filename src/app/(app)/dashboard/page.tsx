@@ -8,7 +8,10 @@ import KpiTile from "@/components/dashboard/KpiTile";
 import RevenueChart from "@/components/dashboard/RevenueChart";
 import AlertSummaryPanel from "@/components/dashboard/AlertSummaryPanel";
 import WasteDonutChart from "@/components/dashboard/WasteDonutChart";
-import { ShoppingBag, DollarSign, AlertTriangle, Hourglass, Sparkles } from "lucide-react";
+import SalesVsPurchasesChart from "@/components/dashboard/SalesVsPurchasesChart";
+import TopSellingProducts from "@/components/dashboard/TopSellingProducts";
+import RecentTransactionsTable from "@/components/dashboard/RecentTransactionsTable";
+import { ShoppingBag, DollarSign, AlertTriangle, Hourglass, Sparkles, Wallet, TrendingUp } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default function DashboardPage() {
@@ -44,27 +47,27 @@ export default function DashboardPage() {
 
   if (loadingStats || !stats) {
     return (
-      <div className="p-8 max-w-5xl mx-auto space-y-8 animate-fade-in">
+      <div className="p-8 w-full max-w-none mx-auto space-y-8 animate-fade-in">
         <PageHeader title="Dashboard" breadcrumbs={breadcrumbs} />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <Skeleton key={i} className="h-28 rounded-xl" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <Skeleton key={i} className="h-28 rounded-xl animate-pulse" />
           ))}
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Skeleton className="h-[380px] lg:col-span-2 rounded-xl" />
-          <Skeleton className="h-[380px] rounded-xl" />
+          <Skeleton className="h-[380px] lg:col-span-2 rounded-xl animate-pulse" />
+          <Skeleton className="h-[380px] rounded-xl animate-pulse" />
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-8 max-w-5xl mx-auto space-y-8 animate-fade-in">
+    <div className="p-8 w-full max-w-none mx-auto space-y-8 animate-fade-in">
       <PageHeader title="Dashboard" breadcrumbs={breadcrumbs} />
 
       {/* Welcome Banner */}
-      <div className="p-6 rounded-2xl border border-border bg-card/40 backdrop-blur-md shadow-sm relative overflow-hidden flex items-center justify-between">
+      <div className="p-6 clay relative overflow-hidden flex items-center justify-between">
         <div className="space-y-1 z-10">
           <h2 className="text-xl font-bold text-foreground flex items-center gap-1.5">
             <Sparkles className="h-5 w-5 text-primary" />
@@ -78,7 +81,7 @@ export default function DashboardPage() {
       </div>
 
       {/* KPI Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <KpiTile
           label="Total Products"
           value={stats.totalProducts}
@@ -87,12 +90,28 @@ export default function DashboardPage() {
           subtext="Active catalog items"
         />
         <KpiTile
+          label="Inventory Valuation"
+          value={stats.inventoryValuation}
+          icon={Wallet}
+          iconClassName="text-indigo-500"
+          isCurrency
+          subtext="Total asset value"
+        />
+        <KpiTile
           label="Today's Revenue"
           value={stats.todayRevenue}
           icon={DollarSign}
           iconClassName="text-emerald-500"
           isCurrency
           subtext="Captured sales"
+        />
+        <KpiTile
+          label="7-Day Profit/Loss"
+          value={stats.profitOrLoss}
+          icon={TrendingUp}
+          iconClassName={stats.profitOrLoss >= 0 ? "text-emerald-500" : "text-destructive"}
+          isCurrency
+          subtext="Revenue vs Restock Expenses"
         />
         <KpiTile
           label="Low Stock Alerts"
@@ -114,22 +133,18 @@ export default function DashboardPage() {
 
       {/* Charts & Panels Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Weekly Revenue Area Chart */}
+        {/* Row 1 */}
+        <SalesVsPurchasesChart className="lg:col-span-2" data={stats.salesVsPurchases} />
+        <TopSellingProducts className="" products={stats.topSellingProducts} />
+
+        {/* Row 2 */}
         <RevenueChart
-          className="lg:col-span-2 shadow-sm"
+          className="lg:col-span-2"
           data={stats.weeklyRevenue}
         />
-
-        {/* Alerts Summary Panel */}
         <AlertSummaryPanel />
 
-        {/* Waste Risk Donut Chart (Shown only to authorized roles) */}
-        {isManagerOrAdmin && categoryWaste.length > 0 && (
-          <WasteDonutChart
-            className="lg:col-span-3 shadow-sm"
-            data={categoryWaste}
-          />
-        )}
+        {/* Row 3 */}
       </div>
     </div>
   );

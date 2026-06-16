@@ -19,6 +19,7 @@ export interface Product {
     _id: string;
     name: string;
   } | string | null;
+  brand?: string;
   batches: Batch[];
   totalStock: number; // dynamic total stock count from backend
   isDeleted: boolean;
@@ -35,6 +36,7 @@ export interface CreateProductDto {
   sellingPrice: number;
   safetyStockLevel?: number;
   supplierId?: string | null;
+  brand?: string;
   batches?: Batch[];
 }
 
