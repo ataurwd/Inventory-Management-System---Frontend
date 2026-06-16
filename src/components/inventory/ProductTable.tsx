@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Pencil, Eye, Trash2, ShieldAlert } from "lucide-react";
+import { Pencil, Eye, Trash2, Package, ShieldAlert, Barcode } from "lucide-react";
 
 interface ProductTableProps {
   products: Product[];
@@ -54,17 +54,45 @@ export default function ProductTable({ products, isLoading, onDeleteSuccess }: P
     return <Badge variant="safe">Safe</Badge>;
   };
 
+  const getStockBar = (stock: number, safety: number) => {
+    const max = Math.max(safety * 2, stock);
+    const percentage = max > 0 ? Math.min(100, (stock / max) * 100) : 0;
+    
+    let color = "bg-primary";
+    if (stock < safety) {
+      color = "bg-destructive";
+    } else if (stock < safety * 1.5) {
+      color = "bg-[oklch(0.72_0.18_55)]"; // warning amber
+    } else {
+      color = "bg-[oklch(0.70_0.18_145)]"; // safe green
+    }
+    
+    return (
+      <div className="w-full max-w-[140px] space-y-1">
+        <div className="flex items-center justify-between text-[10px]">
+          <span className="font-semibold text-foreground">{stock} units</span>
+          <span className="text-muted-foreground font-medium">Goal: {safety}</span>
+        </div>
+        <div className="h-1.5 w-full bg-secondary border border-border/10 rounded-full overflow-hidden">
+          <div 
+            className={`h-full ${color} rounded-full transition-all duration-500`} 
+            style={{ width: `${percentage}%` }} 
+          />
+        </div>
+      </div>
+    );
+  };
+
   if (isLoading) {
     return (
-      <div className="border rounded-xl bg-card overflow-hidden">
+      <div className="rounded-2xl border border-border bg-card/45 backdrop-blur-md overflow-hidden p-6 shadow-md">
         <Table>
-          <TableHeader className="bg-muted/50">
+          <TableHeader className="bg-sidebar/30">
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Barcode</TableHead>
               <TableHead>Category</TableHead>
-              <TableHead>Total Stock</TableHead>
-              <TableHead>Safety Level</TableHead>
+              <TableHead>Stock Level</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="text-right">Actions</TableHead>
             </TableRow>
@@ -72,13 +100,20 @@ export default function ProductTable({ products, isLoading, onDeleteSuccess }: P
           <TableBody>
             {Array.from({ length: 5 }).map((_, idx) => (
               <TableRow key={idx}>
-                <TableCell><Skeleton className="h-4 w-[180px]" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-[100px]" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-[80px]" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-[60px]" /></TableCell>
-                <TableCell><Skeleton className="h-6 w-[80px] rounded-full" /></TableCell>
-                <TableCell className="text-right"><Skeleton className="h-8 w-[60px] ml-auto rounded-lg" /></TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-3">
+                    <Skeleton className="h-9 w-9 rounded-lg" />
+                    <div className="space-y-1.5">
+                      <Skeleton className="h-4 w-[160px]" />
+                      <Skeleton className="h-3 w-[80px]" />
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell><Skeleton className="h-4 w-[85px] rounded" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-[70px] rounded" /></TableCell>
+                <TableCell><Skeleton className="h-6 w-[120px] rounded" /></TableCell>
+                <TableCell><Skeleton className="h-5 w-[60px] rounded-full" /></TableCell>
+                <TableCell className="text-right"><Skeleton className="h-8 w-[90px] ml-auto rounded-lg" /></TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -89,14 +124,14 @@ export default function ProductTable({ products, isLoading, onDeleteSuccess }: P
 
   if (products.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 border border-dashed rounded-2xl bg-card/50 text-center space-y-4">
-        <div className="p-3 bg-muted rounded-full text-muted-foreground">
-          <ShieldAlert className="h-8 w-8" />
+      <div className="flex flex-col items-center justify-center p-16 border border-dashed rounded-2xl bg-card/40 backdrop-blur-md text-center space-y-4 animate-fade-in border-border/80">
+        <div className="p-4 bg-muted/40 rounded-full text-muted-foreground border border-border/50">
+          <ShieldAlert className="h-8 w-8 text-primary" />
         </div>
         <div className="space-y-1">
-          <h3 className="font-semibold text-lg">No products found</h3>
-          <p className="text-sm text-muted-foreground max-w-sm">
-            Try adjusting your search filters or add a new product to the inventory database.
+          <h3 className="font-bold text-lg text-foreground">No products found</h3>
+          <p className="text-xs text-muted-foreground max-w-sm">
+            Try adjusting your search queries or category filters to find the products.
           </p>
         </div>
       </div>
@@ -105,47 +140,78 @@ export default function ProductTable({ products, isLoading, onDeleteSuccess }: P
 
   return (
     <>
-      <div className="border rounded-xl bg-card overflow-hidden shadow-lg border-border">
+      <div className="rounded-2xl border border-border/70 bg-card/45 backdrop-blur-md overflow-hidden shadow-sm hover:shadow-md transition-all">
         <Table>
-          <TableHeader className="bg-muted/50">
+          <TableHeader className="bg-sidebar/25 border-b border-border/40">
             <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Barcode</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Total Stock</TableHead>
-              <TableHead>Safety Level</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
+              <TableHead className="font-bold text-xs">Product Details</TableHead>
+              <TableHead className="font-bold text-xs">Barcode</TableHead>
+              <TableHead className="font-bold text-xs">Category</TableHead>
+              <TableHead className="font-bold text-xs">Stock Level</TableHead>
+              <TableHead className="font-bold text-xs">Status</TableHead>
+              <TableHead className="font-bold text-xs text-right">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {products.map((product) => (
-              <TableRow key={product._id}>
-                <TableCell className="font-medium">{product.name}</TableCell>
-                <TableCell className="text-muted-foreground font-mono text-xs">{product.barcode}</TableCell>
-                <TableCell>{product.category}</TableCell>
-                <TableCell className="font-bold">{product.totalStock}</TableCell>
-                <TableCell className="text-muted-foreground">{product.safetyStockLevel}</TableCell>
-                <TableCell>{getStatusBadge(product.totalStock, product.safetyStockLevel)}</TableCell>
-                <TableCell className="text-right space-x-2">
-                  <Link href={`/inventory/${product._id}`} passHref>
-                    <Button variant="outline" size="icon-sm" title="View Product">
-                      <Eye className="h-3.5 w-3.5" />
+              <TableRow key={product._id} className="hover:bg-sidebar-accent/10 transition-colors group">
+                <TableCell className="py-3.5">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 border border-primary/15 text-primary transition-all group-hover:scale-105 shadow-inner">
+                      <Package className="h-4.5 w-4.5" />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <Link 
+                        href={`/inventory/${product._id}`}
+                        className="font-semibold text-sm text-foreground hover:text-primary transition-colors truncate"
+                      >
+                        {product.name}
+                      </Link>
+                      <span className="text-[10px] text-muted-foreground">
+                        Unit: {product.unit || "pcs"} | Cost: ${product.costPrice.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="inline-flex items-center gap-1 bg-secondary text-secondary-foreground font-mono text-[10px] px-2 py-0.5 rounded border border-border/50">
+                    <Barcode className="h-3 w-3 opacity-60" />
+                    {product.barcode}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge variant="outline" className="border-border/60 hover:bg-transparent capitalize text-[10px]">
+                    {product.category}
+                  </Badge>
+                </TableCell>
+                <TableCell className="py-3.5">
+                  {getStockBar(product.totalStock, product.safetyStockLevel)}
+                </TableCell>
+                <TableCell>
+                  {getStatusBadge(product.totalStock, product.safetyStockLevel)}
+                </TableCell>
+                <TableCell className="text-right py-3.5">
+                  <div className="flex justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                    <Link href={`/inventory/${product._id}`} passHref>
+                      <Button variant="ghost" size="icon-sm" title="View Details" className="hover:text-primary cursor-pointer hover:bg-sidebar-accent/30">
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Link href={`/inventory/${product._id}?edit=true`} passHref>
+                      <Button variant="ghost" size="icon-sm" title="Edit Product" className="hover:text-primary cursor-pointer hover:bg-sidebar-accent/30">
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="ghost"
+                      size="icon-sm"
+                      title="Delete Product"
+                      onClick={() => handleDeleteClick(product)}
+                      className="hover:text-destructive cursor-pointer hover:bg-destructive/10"
+                    >
+                      <Trash2 className="h-4 w-4" />
                     </Button>
-                  </Link>
-                  <Link href={`/inventory/${product._id}?edit=true`} passHref>
-                    <Button variant="outline" size="icon-sm" title="Edit Product">
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                  </Link>
-                  <Button
-                    variant="destructive"
-                    size="icon-sm"
-                    title="Delete Product"
-                    onClick={() => handleDeleteClick(product)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
@@ -155,23 +221,25 @@ export default function ProductTable({ products, isLoading, onDeleteSuccess }: P
 
       {/* Delete Confirmation Modal */}
       <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="sm:max-w-md bg-card border border-border rounded-2xl shadow-xl">
           <DialogHeader>
-            <DialogTitle>Delete Product</DialogTitle>
-            <DialogDescription>
-              Are you sure you want to delete <strong>{selectedProduct?.name}</strong>? This action will hide the product from the active inventory list.
+            <DialogTitle className="text-lg font-bold text-foreground">Confirm Deletion</DialogTitle>
+            <DialogDescription className="text-xs text-muted-foreground pt-1">
+              Are you sure you want to delete <strong>{selectedProduct?.name}</strong>? This action hides it from active listings.
             </DialogDescription>
           </DialogHeader>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)}>
+          <DialogFooter className="mt-4">
+            <Button variant="outline" size="sm" onClick={() => setDeleteDialogOpen(false)} className="text-xs border-border hover:bg-sidebar-accent cursor-pointer">
               Cancel
             </Button>
             <Button
               variant="destructive"
+              size="sm"
               isLoading={isDeleting}
               onClick={handleConfirmDelete}
+              className="text-xs cursor-pointer"
             >
-              Delete
+              Delete Product
             </Button>
           </DialogFooter>
         </DialogContent>

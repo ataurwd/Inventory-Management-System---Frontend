@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from '@/components/theme-provider';
 import './globals.css';
 
 const geistSans = Geist({
@@ -33,24 +34,28 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} dark h-full`}
+      className={`${geistSans.variable} ${geistMono.variable} h-full`}
+      suppressHydrationWarning
     >
       <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
-        {children}
-        <Toaster
-          position="bottom-right"
-          theme="dark"
-          richColors
-          closeButton
-          toastOptions={{
-            duration: 5000,
-            style: {
-              background: 'oklch(0.15 0.02 265 / 0.9)',
-              border: '1px solid oklch(0.30 0.025 265 / 0.6)',
-              backdropFilter: 'blur(12px)',
-            },
-          }}
-        />
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem>
+          {children}
+          <Toaster
+            position="bottom-right"
+            theme="system"
+            richColors
+            closeButton
+            toastOptions={{
+              duration: 5000,
+              style: {
+                background: 'var(--card)',
+                border: '1px solid var(--border)',
+                color: 'var(--foreground)',
+                backdropFilter: 'blur(12px)',
+              },
+            }}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -48,6 +48,7 @@ export function ShoppingList({ forecasts }: ShoppingListProps) {
               <TableRow>
                 <TableHead>Product</TableHead>
                 <TableHead>Category</TableHead>
+                <TableHead>Supplier</TableHead>
                 <TableHead className="text-right">Current Stock</TableHead>
                 <TableHead className="text-right">Predicted Demand</TableHead>
                 <TableHead className="text-right text-amber-500">Order Qty</TableHead>
@@ -58,6 +59,9 @@ export function ShoppingList({ forecasts }: ShoppingListProps) {
                 const name = typeof f.productId !== 'string' ? (f.productId as any).name : 'Unknown';
                 const category = typeof f.productId !== 'string' ? (f.productId as any).category : '';
                 const unit = typeof f.productId !== 'string' ? (f.productId as any).unit : '';
+                const supplierName = typeof f.productId !== 'string' && f.productId.supplierId && typeof f.productId.supplierId === 'object'
+                  ? f.productId.supplierId.name
+                  : 'N/A';
                 
                 return (
                   <TableRow key={f._id}>
@@ -65,6 +69,7 @@ export function ShoppingList({ forecasts }: ShoppingListProps) {
                     <TableCell>
                       <Badge variant="outline">{category}</Badge>
                     </TableCell>
+                    <TableCell className="text-xs text-muted-foreground">{supplierName}</TableCell>
                     <TableCell className="text-right">{f.currentStock} {unit}</TableCell>
                     <TableCell className="text-right">{f.predictedDemand} {unit}</TableCell>
                     <TableCell className="text-right font-bold text-amber-500">

@@ -15,7 +15,9 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { Menu, Bell, LogOut, User, Palette } from "lucide-react";
+import { Menu, Bell, LogOut, User, Palette, Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
+import { useEffect, useState } from "react";
 
 import { useNotificationsStore } from "@/store/notifications.store";
 
@@ -23,7 +25,13 @@ export default function Topbar() {
   const router = useRouter();
   const { user, clearUser } = useAuth();
   const { toggleSidebar } = useUiStore();
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
   const { notifications, unreadCount, markAllAsRead, clearNotifications } = useNotificationsStore();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -61,6 +69,21 @@ export default function Topbar() {
             {user.role}
           </Badge>
         )}
+
+        {/* Theme Toggle */}
+        <button
+          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          className="p-2 rounded-lg hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          aria-label="Toggle theme"
+        >
+          {!mounted ? (
+            <div className="h-5 w-5 animate-pulse rounded-full bg-muted" />
+          ) : theme === "dark" ? (
+            <Sun className="h-5 w-5" />
+          ) : (
+            <Moon className="h-5 w-5" />
+          )}
+        </button>
 
         {/* Notification Bell / Dropdown */}
         <DropdownMenu>

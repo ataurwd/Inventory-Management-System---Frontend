@@ -15,6 +15,13 @@ export interface Forecast {
     barcode: string;
     unit: string;
     category: string;
+    supplierId?: {
+      _id: string;
+      name: string;
+      contactEmail?: string;
+      phone?: string;
+      address?: string;
+    } | null;
   } | string;
   generatedAt: string;
   predictedDemand: number;

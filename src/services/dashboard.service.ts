@@ -14,8 +14,11 @@ export interface WasteRiskItem {
   category: string;
   batchNo: string;
   qty: number;
+  costPrice: number;
   expiryDate: string;
   daysRemaining: number;
+  estimatedLoss: number;
+  suggestion: string;
   risk: 'critical' | 'high' | 'medium';
 }
 

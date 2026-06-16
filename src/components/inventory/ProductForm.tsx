@@ -13,6 +13,8 @@ import { toast } from "sonner";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import Link from "next/link";
+import { useSuppliers } from "@/hooks/useSuppliers";
+import { useAuth } from "@/hooks/useAuth";
 
 import { Product, Batch } from "@/types/product.types";
 
@@ -27,6 +29,7 @@ const productSchema = z
     safetyStockLevel: z.number({ message: "Safety stock level must be a number" }).nonnegative("Safety stock level cannot be negative"),
     initialStock: z.union([z.number(), z.nan()]).optional(),
     expiryDate: z.string().optional(),
+    supplierId: z.string().or(z.literal("")).nullable().optional(),
   })
   .refine(
     (data) => {
@@ -93,12 +96,16 @@ const formatDateForInput = (dateStr?: string | Date): string => {
 
 export default function ProductForm({ onSuccess, onCancel, productToEdit }: ProductFormProps) {
   const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
 
   // Fetch categories list dynamically from database
   const { data: categoriesData } = useSWR(
     "/categories",
     () => categoriesService.getAll()
   );
+
+  // Fetch suppliers list dynamically from database
+  const { suppliers } = useSuppliers();
 
   const {
     register,
@@ -126,6 +133,11 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
           ? formatDateForInput(productToEdit.batches[0].expiry_date)
           : ""
         : "",
+      supplierId: productToEdit?.supplierId
+        ? typeof productToEdit.supplierId === "object"
+          ? productToEdit.supplierId._id
+          : productToEdit.supplierId
+        : "",
     },
   });
 
@@ -145,6 +157,11 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
           : productToEdit.totalStock,
         expiryDate: productToEdit.batches.length === 1
           ? formatDateForInput(productToEdit.batches[0].expiry_date)
+          : "",
+        supplierId: productToEdit.supplierId
+          ? typeof productToEdit.supplierId === "object"
+            ? productToEdit.supplierId._id
+            : productToEdit.supplierId
           : "",
       });
     } else {
@@ -186,6 +203,7 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
         
         await productsService.update(productToEdit._id, {
           ...updateData,
+          supplierId: updateData.supplierId || null,
           batches: updatedBatches,
         });
         toast.success("Product updated successfully");
@@ -203,6 +221,7 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
         }
         const createdProduct = await productsService.create({
           ...createData,
+          supplierId: createData.supplierId || null,
           batches,
         });
         toast.success("Product created successfully");
@@ -246,20 +265,28 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
         <div className="space-y-2">
           <Label htmlFor="barcode">Barcode</Label>
           <div className="flex gap-2">
-            <Input id="barcode" placeholder="e.g. ABCDEFGH" {...register("barcode")} className="flex-1" />
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                const code = generate8LetterBarcode();
-                setValue("barcode", code, { shouldValidate: true });
-                toast.success(`Generated barcode: ${code}`);
-              }}
-              className="h-9 whitespace-nowrap cursor-pointer"
-            >
-              Generate
-            </Button>
+            <Input
+              id="barcode"
+              placeholder="e.g. ABCDEFGH"
+              {...register("barcode")}
+              className={`flex-1 ${productToEdit ? "bg-muted cursor-not-allowed opacity-75" : ""}`}
+              readOnly={!!productToEdit}
+            />
+            {!productToEdit && (
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const code = generate8LetterBarcode();
+                  setValue("barcode", code, { shouldValidate: true });
+                  toast.success(`Generated barcode: ${code}`);
+                }}
+                className="h-9 whitespace-nowrap cursor-pointer"
+              >
+                Generate
+              </Button>
+            )}
           </div>
           {errors.barcode && <p className="text-xs text-destructive">{errors.barcode.message}</p>}
         </div>
@@ -267,7 +294,22 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
         {/* Unit */}
         <div className="space-y-2">
           <Label htmlFor="unit">Unit</Label>
-          <Input id="unit" placeholder="e.g. pcs, kg, bag" {...register("unit")} />
+          <select
+            id="unit"
+            className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring cursor-pointer"
+            {...register("unit")}
+          >
+            <option value="pcs">pcs (Pieces)</option>
+            <option value="kg">kg (Kilograms)</option>
+            <option value="g">g (Grams)</option>
+            <option value="ltr">ltr (Liters)</option>
+            <option value="ml">ml (Milliliters)</option>
+            <option value="box">box (Boxes)</option>
+            <option value="pack">pack (Packs)</option>
+            <option value="bottle">bottle (Bottles)</option>
+            <option value="can">can (Cans)</option>
+            <option value="bag">bag (Bags)</option>
+          </select>
           {errors.unit && <p className="text-xs text-destructive">{errors.unit.message}</p>}
         </div>
 
@@ -296,6 +338,35 @@ export default function ProductForm({ onSuccess, onCancel, productToEdit }: Prod
             ))}
           </select>
           {errors.category && <p className="text-xs text-destructive">{errors.category.message}</p>}
+        </div>
+
+        {/* Supplier */}
+        <div className="space-y-2">
+          <div className="flex justify-between items-center">
+            <Label htmlFor="supplierId">Supplier</Label>
+            {user?.role === "admin" && (
+              <Link
+                href="/suppliers"
+                className="text-xs text-primary hover:underline cursor-pointer"
+              >
+                Manage list
+              </Link>
+            )}
+          </div>
+
+          <select
+            id="supplierId"
+            className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-1 focus-visible:ring-ring"
+            {...register("supplierId")}
+          >
+            <option value="">Select a supplier (Optional)</option>
+            {suppliers.map((sup) => (
+              <option key={sup._id} value={sup._id}>
+                {sup.name}
+              </option>
+            ))}
+          </select>
+          {errors.supplierId && <p className="text-xs text-destructive">{errors.supplierId.message}</p>}
         </div>
 
         {/* Safety Stock Level */}
