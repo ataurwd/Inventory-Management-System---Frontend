@@ -13,6 +13,7 @@ import BrandFormModal from "@/components/inventory/BrandFormModal";
 import { Edit2, Trash2, FolderOpen, Tag } from "lucide-react";
 import { toast } from "sonner";
 import axios from "axios";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Dialog,
   DialogContent,
@@ -23,6 +24,8 @@ import {
 } from "@/components/ui/dialog";
 
 export default function BrandsPage() {
+  const { role } = useAuth();
+  const isAdmin = role === "admin";
   const [modalOpen, setModalOpen] = useState(false);
   const [brandToEdit, setBrandToEdit] = useState<BrandItem | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -132,15 +135,17 @@ export default function BrandsPage() {
                           <Edit2 className="h-4 w-4" />
                           <span className="sr-only">Edit</span>
                         </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon-sm"
-                          onClick={() => setDeleteId(brand._id)}
-                          className="h-8 w-8 hover:text-destructive cursor-pointer hover:bg-destructive/10 rounded-lg"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                          <span className="sr-only">Delete</span>
-                        </Button>
+                        {isAdmin && (
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => setDeleteId(brand._id)}
+                            className="h-8 w-8 hover:text-destructive cursor-pointer hover:bg-destructive/10 rounded-lg"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                            <span className="sr-only">Delete</span>
+                          </Button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

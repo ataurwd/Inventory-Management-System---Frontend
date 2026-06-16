@@ -11,6 +11,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Pencil, Eye, Trash2, Package, ShieldAlert, Barcode } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 interface ProductTableProps {
   products: Product[];
@@ -19,6 +20,8 @@ interface ProductTableProps {
 }
 
 export default function ProductTable({ products, isLoading, onDeleteSuccess }: ProductTableProps) {
+  const { role } = useAuth();
+  const isAdmin = role === "admin";
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -209,15 +212,17 @@ export default function ProductTable({ products, isLoading, onDeleteSuccess }: P
                         <Pencil className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      title="Delete Product"
-                      onClick={() => handleDeleteClick(product)}
-                      className="h-8 w-8 hover:text-destructive cursor-pointer hover:bg-destructive/10 rounded-lg"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {isAdmin && (
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        title="Delete Product"
+                        onClick={() => handleDeleteClick(product)}
+                        className="h-8 w-8 hover:text-destructive cursor-pointer hover:bg-destructive/10 rounded-lg"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

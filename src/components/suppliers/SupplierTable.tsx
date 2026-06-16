@@ -25,7 +25,7 @@ export default function SupplierTable({ suppliers, onEdit, onDelete }: SupplierT
             <TableHead className="font-bold text-xs">Email Address</TableHead>
             <TableHead className="font-bold text-xs">Phone Number</TableHead>
             <TableHead className="font-bold text-xs">Address</TableHead>
-            {isAdmin && <TableHead className="font-bold text-xs text-right">Actions</TableHead>}
+            <TableHead className="font-bold text-xs text-right">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -41,18 +41,18 @@ export default function SupplierTable({ suppliers, onEdit, onDelete }: SupplierT
               <TableCell className="text-muted-foreground max-w-xs truncate text-xs">
                 {supplier.address || <span className="text-muted-foreground/35 italic">Not provided</span>}
               </TableCell>
-              {isAdmin && (
-                <TableCell className="text-right">
-                  <div className="flex justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
-                    <Button
-                      variant="ghost"
-                      size="icon-sm"
-                      onClick={() => onEdit(supplier)}
-                      className="h-8 w-8 hover:text-primary cursor-pointer hover:bg-sidebar-accent/30 rounded-lg"
-                    >
-                      <Edit2 className="h-4 w-4" />
-                      <span className="sr-only">Edit</span>
-                    </Button>
+              <TableCell className="text-right">
+                <div className="flex justify-end gap-1.5 opacity-80 group-hover:opacity-100 transition-opacity">
+                  <Button
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={() => onEdit(supplier)}
+                    className="h-8 w-8 hover:text-primary cursor-pointer hover:bg-sidebar-accent/30 rounded-lg"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                    <span className="sr-only">Edit</span>
+                  </Button>
+                  {isAdmin && (
                     <Button
                       variant="ghost"
                       size="icon-sm"
@@ -62,9 +62,9 @@ export default function SupplierTable({ suppliers, onEdit, onDelete }: SupplierT
                       <Trash2 className="h-4 w-4" />
                       <span className="sr-only">Delete</span>
                     </Button>
-                  </div>
-                </TableCell>
-              )}
+                  )}
+                </div>
+              </TableCell>
             </TableRow>
           ))}
         </TableBody>

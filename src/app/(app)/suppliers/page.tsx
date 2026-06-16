@@ -64,14 +64,10 @@ export default function SuppliersPage() {
       <PageHeader
         title="Supplier Management"
         breadcrumbs={breadcrumbs}
-        action={
-          isAdmin
-            ? {
-                label: "Add Supplier",
-                onClick: handleAddClick,
-              }
-            : undefined
-        }
+        action={{
+          label: "Add Supplier",
+          onClick: handleAddClick,
+        }}
       />
 
       <div className="rounded-2xl border border-border bg-card/40 backdrop-blur-md p-6 shadow-sm">
@@ -100,14 +96,12 @@ export default function SuppliersPage() {
         )}
       </div>
 
-      {isAdmin && (
-        <SupplierForm
-          open={modalOpen}
-          onOpenChange={setModalOpen}
-          supplierToEdit={supplierToEdit}
-          onSuccess={mutate}
-        />
-      )}
+      <SupplierForm
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        supplierToEdit={supplierToEdit}
+        onSuccess={mutate}
+      />
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={deleteId !== null} onOpenChange={(open) => !open && setDeleteId(null)}>

@@ -119,13 +119,13 @@ export default function Sidebar() {
       name: "Suppliers",
       href: "/suppliers",
       icon: Truck,
-      roles: ["admin", "manager"],
+      roles: ["admin", "manager", "cashier"],
     },
     {
       name: "Settings",
       href: "/settings",
       icon: Settings,
-      roles: ["admin"],
+      roles: ["admin", "manager", "cashier"],
     },
   ];
 
