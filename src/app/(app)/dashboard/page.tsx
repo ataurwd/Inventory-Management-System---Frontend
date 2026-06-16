@@ -89,30 +89,34 @@ export default function DashboardPage() {
           iconClassName="text-blue-500"
           subtext="Active catalog items"
         />
-        <KpiTile
-          label="Inventory Valuation"
-          value={stats.inventoryValuation}
-          icon={Wallet}
-          iconClassName="text-indigo-500"
-          isCurrency
-          subtext="Total asset value"
-        />
-        <KpiTile
-          label="Today's Revenue"
-          value={stats.todayRevenue}
-          icon={DollarSign}
-          iconClassName="text-emerald-500"
-          isCurrency
-          subtext="Captured sales"
-        />
-        <KpiTile
-          label="7-Day Profit/Loss"
-          value={stats.profitOrLoss}
-          icon={TrendingUp}
-          iconClassName={stats.profitOrLoss >= 0 ? "text-emerald-500" : "text-destructive"}
-          isCurrency
-          subtext="Revenue vs Restock Expenses"
-        />
+        {isManagerOrAdmin && (
+          <>
+            <KpiTile
+              label="Inventory Valuation"
+              value={stats.inventoryValuation}
+              icon={Wallet}
+              iconClassName="text-indigo-500"
+              isCurrency
+              subtext="Total asset value"
+            />
+            <KpiTile
+              label="Today's Revenue"
+              value={stats.todayRevenue}
+              icon={DollarSign}
+              iconClassName="text-emerald-500"
+              isCurrency
+              subtext="Captured sales"
+            />
+            <KpiTile
+              label="7-Day Profit/Loss"
+              value={stats.profitOrLoss}
+              icon={TrendingUp}
+              iconClassName={stats.profitOrLoss >= 0 ? "text-emerald-500" : "text-destructive"}
+              isCurrency
+              subtext="Revenue vs Restock Expenses"
+            />
+          </>
+        )}
         <KpiTile
           label="Low Stock Alerts"
           value={stats.totalLowStockAlerts}
@@ -132,20 +136,25 @@ export default function DashboardPage() {
       </div>
 
       {/* Charts & Panels Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Row 1 */}
-        <SalesVsPurchasesChart className="lg:col-span-2" data={stats.salesVsPurchases} />
-        <TopSellingProducts className="" products={stats.topSellingProducts} />
+      {isManagerOrAdmin ? (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Row 1 */}
+          <SalesVsPurchasesChart className="lg:col-span-2" data={stats.salesVsPurchases} />
+          <TopSellingProducts className="" products={stats.topSellingProducts} />
 
-        {/* Row 2 */}
-        <RevenueChart
-          className="lg:col-span-2"
-          data={stats.weeklyRevenue}
-        />
-        <AlertSummaryPanel />
-
-        {/* Row 3 */}
-      </div>
+          {/* Row 2 */}
+          <RevenueChart
+            className="lg:col-span-2"
+            data={stats.weeklyRevenue}
+          />
+          <AlertSummaryPanel />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <TopSellingProducts products={stats.topSellingProducts} hideRevenue />
+          <AlertSummaryPanel />
+        </div>
+      )}
     </div>
   );
 }

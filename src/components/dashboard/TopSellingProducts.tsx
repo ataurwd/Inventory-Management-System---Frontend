@@ -11,7 +11,10 @@ interface TopSellingProductsProps {
     totalRevenue: number;
   }[];
   className?: string;
-}export default function TopSellingProducts({ products, className }: TopSellingProductsProps) {
+  hideRevenue?: boolean;
+}
+
+export default function TopSellingProducts({ products, className, hideRevenue = false }: TopSellingProductsProps) {
   const maxQty = Math.max(...products.map(p => p.totalQty), 1);
 
   return (
@@ -50,9 +53,11 @@ interface TopSellingProductsProps {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs font-bold text-foreground">
-                        ${product.totalRevenue.toFixed(2)}
-                      </p>
+                      {!hideRevenue && (
+                        <p className="text-xs font-bold text-foreground">
+                          ${product.totalRevenue.toFixed(2)}
+                        </p>
+                      )}
                       <p className="text-[10px] text-muted-foreground">
                         {product.totalQty} sold
                       </p>
