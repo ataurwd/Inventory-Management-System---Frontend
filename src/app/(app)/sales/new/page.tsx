@@ -322,7 +322,7 @@ export default function NewSalePage() {
         <div className="lg:col-span-8 space-y-4">
           
           {/* Product Searches */}
-          <Card className="border border-border shadow-md bg-card/45 backdrop-blur-md">
+          <Card className="border border-border shadow-md bg-card/45 backdrop-blur-md overflow-visible">
             <CardHeader className="py-4 px-5 border-b border-border/40">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <ShoppingCart className="h-4.5 w-4.5 text-primary animate-pulse" />
