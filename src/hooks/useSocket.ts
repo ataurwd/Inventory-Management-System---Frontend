@@ -15,6 +15,10 @@ export function useSocket() {
       return;
     }
 
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      socket.auth = { token };
+    }
     socket.connect();
 
     socket.on('connect', () => {

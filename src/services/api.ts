@@ -10,6 +10,20 @@ const api: AxiosInstance = axios.create({
   timeout: 15000,
 });
 
+// ─── Request Interceptor ──────────────────────────────────────────
+api.interceptors.request.use(
+  (config) => {
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
 // ─── Response Interceptor ─────────────────────────────────────────
 api.interceptors.response.use(
   (response) => response,
