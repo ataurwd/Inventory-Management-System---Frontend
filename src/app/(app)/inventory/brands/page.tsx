@@ -99,7 +99,7 @@ export default function BrandsPage() {
         ) : brands.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground text-xs flex flex-col items-center gap-3">
             <FolderOpen className="h-10 w-10 text-muted-foreground/50" />
-            No brands defined yet. Click "Add Brand" above to create one.
+            {"No brands defined yet. Click \"Add Brand\" above to create one."}
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl bg-background/30">

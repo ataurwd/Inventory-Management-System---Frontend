@@ -99,7 +99,7 @@ export default function CategoriesPage() {
         ) : categories.length === 0 ? (
           <div className="text-center py-10 text-muted-foreground text-xs flex flex-col items-center gap-3">
             <FolderOpen className="h-10 w-10 text-muted-foreground/50" />
-            No categories defined yet. Click "Add Category" above to create one.
+            {"No categories defined yet. Click \"Add Category\" above to create one."}
           </div>
         ) : (
           <div className="overflow-hidden rounded-xl bg-background/30">

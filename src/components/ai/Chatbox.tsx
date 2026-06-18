@@ -28,17 +28,17 @@ export function Chatbox({ inline = false }: ChatboxProps) {
   const [isLoading, setIsLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Only render for admins
-  if (user?.role !== 'admin') {
-    return null;
-  }
-
   // Auto-scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages, isOpen]);
+
+  // Only render for admins
+  if (user?.role !== 'admin') {
+    return null;
+  }
 
   const handleSend = async () => {
     if (!input.trim()) return;

@@ -31,36 +31,40 @@ export default function AIAssistantPage() {
             </div>
           )}
         </div>
-                {/* Capabilities Sidebar / Banner */}
         <div className="w-full lg:w-80 shrink-0 space-y-4">
-          <div className="bg-primary/5 border border-primary/20 rounded-xl p-6">
-            <div className="flex items-center gap-3 mb-4">
-              <Bot className="h-6 w-6 text-primary" />
-              <h2 className="text-lg font-semibold">I can help you:</h2>
+          <div className="bg-card/45 backdrop-blur-md border border-border/80 shadow-md rounded-2xl p-6 relative overflow-hidden group">
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-primary/5 opacity-50"></div>
+            <div className="relative z-10">
+              <div className="flex items-center gap-3 mb-6 border-b border-border/40 pb-4">
+                <div className="p-2 bg-primary/10 rounded-lg text-primary border border-primary/20 shadow-inner">
+                  <Bot className="h-5 w-5" />
+                </div>
+                <h2 className="text-lg font-bold text-foreground">I can help you:</h2>
+              </div>
+              
+              <ul className="space-y-5">
+                <li className="flex gap-3 text-sm text-muted-foreground items-start group/item">
+                  <div className="p-1.5 bg-green-500/10 rounded-md text-green-500 border border-green-500/20 group-hover/item:scale-110 transition-transform">
+                    <PlusCircle className="h-4 w-4 shrink-0" />
+                  </div>
+                  <span className="leading-snug"><strong className="text-foreground block mb-0.5">Add Products</strong>Create new items in the catalog.</span>
+                </li>
+                <li className="flex gap-3 text-sm text-muted-foreground items-start group/item">
+                  <div className="p-1.5 bg-purple-500/10 rounded-md text-purple-500 border border-purple-500/20 group-hover/item:scale-110 transition-transform">
+                    <PackageSearch className="h-4 w-4 shrink-0" />
+                  </div>
+                  <span className="leading-snug"><strong className="text-foreground block mb-0.5">Check Stock</strong>Query current stock levels and alerts.</span>
+                </li>
+              </ul>
             </div>
-            
-            <ul className="space-y-4">
-              <li className="flex gap-3 text-sm text-muted-foreground items-start">
-                <PlusCircle className="h-5 w-5 text-green-500 shrink-0" />
-                <span><strong className="text-foreground">Add Products</strong><br/>Create new items in the catalog.</span>
-              </li>
-              <li className="flex gap-3 text-sm text-muted-foreground items-start">
-                <PenSquare className="h-5 w-5 text-blue-500 shrink-0" />
-                <span><strong className="text-foreground">Update Details</strong><br/>Change prices, categories, or safety stock.</span>
-              </li>
-              <li className="flex gap-3 text-sm text-muted-foreground items-start">
-                <Trash2 className="h-5 w-5 text-red-500 shrink-0" />
-                <span><strong className="text-foreground">Delete Items</strong><br/>Remove discontinued products.</span>
-              </li>
-              <li className="flex gap-3 text-sm text-muted-foreground items-start">
-                <PackageSearch className="h-5 w-5 text-purple-500 shrink-0" />
-                <span><strong className="text-foreground">Check Stock</strong><br/>Query current stock levels and alerts.</span>
-              </li>
-            </ul>
           </div>
 
-          <div className="bg-muted rounded-xl p-4 text-xs text-muted-foreground text-center">
-            Tip: Try asking, "What is the stock for Apples?" or "Update the price of Milk to 4.50"
+          <div className="bg-card/45 backdrop-blur-md border border-border/80 rounded-2xl p-4 text-xs text-muted-foreground text-center shadow-sm flex flex-col items-center gap-2 relative overflow-hidden">
+             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent"></div>
+             <div className="relative z-10 flex flex-col items-center gap-1.5">
+                <span className="font-bold text-primary/70 uppercase tracking-widest text-[10px]">Pro Tip</span>
+                <span className="italic leading-relaxed">{"Try asking, \"What is the stock for Apples?\" or \"Add a new product called Banana\""}</span>
+             </div>
           </div>
         </div>
       </div>
