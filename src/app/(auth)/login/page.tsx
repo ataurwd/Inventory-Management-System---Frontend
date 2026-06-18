@@ -64,7 +64,7 @@ export default function LoginPage() {
   };
 
   const handleQuickFillAdmin = () => {
-    setValue("email", "admin@smartstock.local", { shouldValidate: true });
+    setValue("email", "admin@sellflow.local", { shouldValidate: true });
     setValue("password", "admin123", { shouldValidate: true });
     toast.success("Loaded administrator credentials!");
   };
@@ -85,7 +85,7 @@ export default function LoginPage() {
               Enterprise Dashboard
             </span>
             <h1 className="text-5xl sm:text-6xl font-black tracking-tighter leading-none uppercase">
-              SmartStock<span className="text-primary block sm:inline">.AI</span>
+              SellFlow<span className="text-primary block sm:inline">.io</span>
             </h1>
             <p className="text-lg font-bold text-muted-foreground max-w-xl">
               A high-contrast, AI-powered smart warehouse utility optimizing product velocity, reorder limits, and checkout flows.
@@ -153,7 +153,7 @@ export default function LoginPage() {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="admin@smartstock.local"
+                  placeholder="admin@sellflow.local"
                   className="bg-background border-2 border-slate-900 dark:border-slate-100 focus-visible:ring-0 focus-visible:border-primary focus:outline-none placeholder:text-muted-foreground/50 rounded-none h-10 font-medium"
                   {...register("email")}
                 />

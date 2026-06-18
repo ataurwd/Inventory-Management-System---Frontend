@@ -17,13 +17,13 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'SmartStock — AI Inventory & Waste Management',
-    template: '%s | SmartStock',
+    default: 'SellFlow.io — AI Inventory & Waste Management',
+    template: '%s | SellFlow.io',
   },
   description:
     'AI-powered inventory management system for small businesses. Predict demand, eliminate waste, and automate restocking — built for SMEs.',
   keywords: ['inventory management', 'AI forecasting', 'waste reduction', 'FIFO', 'small business'],
-  authors: [{ name: 'SmartStock' }],
+  authors: [{ name: 'SellFlow.io' }],
   robots: 'noindex, nofollow', // internal tool
 };
 

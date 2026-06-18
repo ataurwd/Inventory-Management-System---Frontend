@@ -22,7 +22,7 @@ export function Chatbox({ inline = false }: ChatboxProps) {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(inline ? true : false);
   const [messages, setMessages] = useState<Message[]>([
-    { role: 'system', content: 'Hello! I am SmartStock AI. How can I help you manage inventory today?' }
+    { role: 'system', content: 'Hello! I am SellFlow AI. How can I help you manage inventory today?' }
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -100,10 +100,10 @@ export function Chatbox({ inline = false }: ChatboxProps) {
       <CardHeader className="p-4 border-b bg-primary/5 flex flex-row items-center justify-between space-y-0">
         <div className="flex items-center space-x-2">
           <Bot className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold text-primary">SmartStock AI</h3>
+          <h3 className="font-semibold text-primary">SellFlow AI</h3>
         </div>
         <div className="flex items-center space-x-1">
-          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setMessages([{ role: 'system', content: 'Hello! I am SmartStock AI. How can I help you manage inventory today?' }])}>
+          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full" onClick={() => setMessages([{ role: 'system', content: 'Hello! I am SellFlow AI. How can I help you manage inventory today?' }])}>
             <MinusCircle className="h-4 w-4 text-muted-foreground" />
           </Button>
           {!inline && (

@@ -164,7 +164,7 @@ export default function Sidebar() {
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 text-primary glow-primary/10">
               <Boxes className="h-5 w-5" />
             </div>
-            {!isCollapsed && <span className="text-xl font-bold tracking-tight text-gradient whitespace-nowrap animate-fade-in">SmartStock</span>}
+            {!isCollapsed && <span className="text-xl font-bold tracking-tight text-gradient whitespace-nowrap animate-fade-in">SellFlow.io</span>}
           </div>
           {/* Mobile close button */}
           {!isCollapsed && (

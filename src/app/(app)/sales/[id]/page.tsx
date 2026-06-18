@@ -180,7 +180,7 @@ export default function SaleDetailPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 border border-primary/20 text-primary">
                 <ShoppingBag className="h-4 w-4" />
               </div>
-              <span className="text-lg font-bold tracking-tight text-foreground">SmartStock POS</span>
+              <span className="text-lg font-bold tracking-tight text-foreground">SellFlow POS</span>
             </div>
             <p className="text-xs text-muted-foreground mt-1 max-w-[200px]">
               123 Commercial St, Business Hub, City 1000
