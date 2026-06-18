@@ -17,11 +17,11 @@ export const DEFAULT_PAGE_SIZE = 20;
 // ─── API ──────────────────────────────────────────────────────────
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:3001/api/v1";
+  "https://inventory-management-system-backend-i70g.onrender.com/api/v1";
 
 export const SOCKET_URL =
   process.env.NEXT_PUBLIC_SOCKET_URL ||
-  "http://localhost:3001";
+  "https://inventory-management-system-backend-i70g.onrender.com";
 
 // ─── Navigation ───────────────────────────────────────────────────
 export type NavItem = {
