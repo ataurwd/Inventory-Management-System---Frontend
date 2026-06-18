@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosInstance } from 'axios';
 import { API_BASE_URL } from '@/lib/constants';
+import { auth } from '@/lib/firebase';
 
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -11,11 +12,15 @@ const api: AxiosInstance = axios.create({
 
 // ─── Request Interceptor ──────────────────────────────────────────
 api.interceptors.request.use(
-  (config) => {
+  async (config) => {
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+      // Get the Firebase token asynchronously
+      const user = auth.currentUser;
+      if (user) {
+        const token = await user.getIdToken();
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
       }
     }
     return config;
