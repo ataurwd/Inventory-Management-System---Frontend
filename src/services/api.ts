@@ -3,7 +3,6 @@ import { API_BASE_URL } from '@/lib/constants';
 
 const api: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
-  withCredentials: true, // Send HttpOnly cookies automatically
   headers: {
     'Content-Type': 'application/json',
   },

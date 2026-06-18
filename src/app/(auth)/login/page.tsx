@@ -39,12 +39,15 @@ export default function LoginPage() {
     try {
       const user = await authService.login(data);
       setUser(user);
-      toast.success("Login successful");
-      router.push("/dashboard");
+      toast.success("Login successful! Redirecting...");
+      
+      // Delay navigation by 500ms to ensure the browser commits cookie writing
+      setTimeout(() => {
+        router.push("/dashboard");
+      }, 500);
     } catch (error) {
       const err = error as { response?: { data?: { error?: { message?: string } } } };
       toast.error(err.response?.data?.error?.message || "Login failed");
-    } finally {
       setIsLoading(false);
     }
   };
