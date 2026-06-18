@@ -45,6 +45,7 @@ export default function Sidebar() {
 
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>({
     Inventory: true,
+    Sales: true,
   });
 
   const toggleExpand = (name: string) => {
@@ -93,6 +94,16 @@ export default function Sidebar() {
       href: "/sales",
       icon: Tags,
       roles: ["admin", "manager", "cashier"],
+      subItems: [
+        {
+          name: "Sales List",
+          href: "/sales",
+        },
+        {
+          name: "New Sales",
+          href: "/sales/new",
+        },
+      ],
     },
     {
       name: "Transactions",

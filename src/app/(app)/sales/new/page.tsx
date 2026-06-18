@@ -323,18 +323,18 @@ export default function NewSalePage() {
     <div className="p-4 md:p-6 lg:p-8 max-w-[1700px] mx-auto space-y-6 animate-fade-in">
       <PageHeader title="POS Checkout" breadcrumbs={breadcrumbs} />
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
         
         {/* LEFT COLUMN: PRODUCT SEARCH (Span 3) */}
-        <div className="lg:col-span-3 space-y-4 lg:sticky lg:top-20 z-20 overflow-visible">
-          <Card className="border border-border shadow-md bg-card/45 backdrop-blur-md overflow-visible">
+        <div className="lg:col-span-3 space-y-4 lg:sticky lg:top-20 z-20 overflow-visible h-full flex flex-col">
+          <Card className="border border-border shadow-md bg-card/45 backdrop-blur-md overflow-visible h-full flex flex-col">
             <CardHeader className="py-4 px-5 border-b border-border/40">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <Search className="h-4.5 w-4.5 text-primary" />
                 Product Search
               </CardTitle>
             </CardHeader>
-            <CardContent className="px-5 pb-5 pt-4 space-y-4">
+            <CardContent className="px-5 pb-5 pt-4 space-y-4 flex-1">
               
               {/* Barcode Scanner Input */}
               <form onSubmit={handleBarcodeSubmit} className="space-y-1.5">
@@ -412,9 +412,9 @@ export default function NewSalePage() {
         </div>
 
         {/* MIDDLE COLUMN: CART TABLE LIST (Span 5) */}
-        <div className="lg:col-span-5 space-y-4">
-          <Card className="border border-border shadow-md overflow-hidden bg-card/30 backdrop-blur-md">
-            <div className="overflow-x-auto min-h-[450px]">
+        <div className="lg:col-span-5 space-y-4 h-full flex flex-col">
+          <Card className="border border-border shadow-md overflow-hidden bg-card/30 backdrop-blur-md h-full flex flex-col">
+            <div className="overflow-x-auto min-h-[450px] flex-1">
               <Table>
                 <TableHeader className="bg-muted/40">
                   <TableRow>
@@ -516,7 +516,7 @@ export default function NewSalePage() {
         </div>
 
         {/* RIGHT COLUMN: STICKY ORDER CHECKOUT SUMMARY (Span 4) */}
-        <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-20 z-10">
+        <div className="lg:col-span-4 space-y-4 lg:sticky lg:top-20 z-10 h-full flex flex-col">
           
           {/* Customer info card */}
           {/* <Card className="border border-border shadow-md bg-card/45 backdrop-blur-md">
@@ -556,14 +556,14 @@ export default function NewSalePage() {
           </Card> */}
 
           {/* Checkout Totals & Submit */}
-          <Card className="border border-border shadow-md bg-card/45 backdrop-blur-md">
+          <Card className="border border-border shadow-md bg-card/45 backdrop-blur-md h-full flex flex-col">
             <CardHeader className="py-4 px-5 border-b border-border/40">
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <CreditCard className="h-4.5 w-4.5 text-primary" />
                 Payment & Totals
               </CardTitle>
             </CardHeader>
-            <CardContent className="p-5 space-y-4">
+            <CardContent className="p-5 space-y-4 flex-1 flex flex-col">
               
               {/* Financial Math Summaries */}
               <div className="space-y-2 border-b border-border/30 pb-3 text-xs">
@@ -755,7 +755,7 @@ export default function NewSalePage() {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col gap-2 pt-2">
+              <div className="flex flex-col gap-2 pt-2 mt-auto">
                 <Button
                   onClick={handleSubmitSale}
                   disabled={isSubmitting || selectedItems.length === 0}
