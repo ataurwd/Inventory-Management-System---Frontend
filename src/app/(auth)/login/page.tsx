@@ -64,7 +64,7 @@ export default function LoginPage() {
   };
 
   const handleQuickFillAdmin = () => {
-    setValue("email", "admin@sellflow.local", { shouldValidate: true });
+    setValue("email", "admin1@smartstock.local", { shouldValidate: true });
     setValue("password", "admin123", { shouldValidate: true });
     toast.success("Loaded administrator credentials!");
   };
@@ -189,15 +189,15 @@ export default function LoginPage() {
 
             <div className="mt-6">
               <div className="relative">
-                <div className="absolute inset-0 flex items-center">
+                {/* <div className="absolute inset-0 flex items-center">
                   <div className="w-full border-t-2 border-slate-900 dark:border-slate-100/20" />
                 </div>
                 <div className="relative flex justify-center text-xs uppercase font-black">
                   <span className="bg-card px-2 text-muted-foreground">Or continue with</span>
-                </div>
+                </div> */}
               </div>
 
-              <div className="mt-6">
+              {/* <div className="mt-6">
                 <Button
                   type="button"
                   onClick={handleGoogleLogin}
@@ -225,7 +225,7 @@ export default function LoginPage() {
                   </svg>
                   Google
                 </Button>
-              </div>
+              </div> */}
             </div>
           </div>
 
