@@ -5,10 +5,21 @@ import useSWR from "swr";
 import { dashboardService } from "@/services/dashboard.service";
 import PageHeader from "@/components/layout/PageHeader";
 import KpiTile from "@/components/dashboard/KpiTile";
-import RevenueChart from "@/components/dashboard/RevenueChart";
+import dynamic from "next/dynamic";
 import AlertSummaryPanel from "@/components/dashboard/AlertSummaryPanel";
-import WasteDonutChart from "@/components/dashboard/WasteDonutChart";
-import SalesVsPurchasesChart from "@/components/dashboard/SalesVsPurchasesChart";
+
+const RevenueChart = dynamic(() => import("@/components/dashboard/RevenueChart"), { 
+  ssr: false, 
+  loading: () => <div className="h-[380px] rounded-xl bg-muted animate-pulse" /> 
+});
+const WasteDonutChart = dynamic(() => import("@/components/dashboard/WasteDonutChart"), { 
+  ssr: false,
+  loading: () => <div className="h-[380px] rounded-xl bg-muted animate-pulse" /> 
+});
+const SalesVsPurchasesChart = dynamic(() => import("@/components/dashboard/SalesVsPurchasesChart"), { 
+  ssr: false,
+  loading: () => <div className="h-[380px] rounded-xl bg-muted animate-pulse" /> 
+});
 import TopSellingProducts from "@/components/dashboard/TopSellingProducts";
 import RecentTransactionsTable from "@/components/dashboard/RecentTransactionsTable";
 import { ShoppingBag, DollarSign, AlertTriangle, Hourglass, Sparkles, Wallet, TrendingUp } from "lucide-react";

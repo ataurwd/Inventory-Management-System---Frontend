@@ -2,7 +2,12 @@
 
 import { useState } from "react";
 import PageHeader from "@/components/layout/PageHeader";
-import { BarcodeScanner } from "@/components/scan/BarcodeScanner";
+import dynamic from "next/dynamic";
+
+const BarcodeScanner = dynamic(
+  () => import("@/components/scan/BarcodeScanner").then((mod) => mod.BarcodeScanner),
+  { ssr: false, loading: () => <div className="h-64 w-full max-w-md aspect-square bg-muted animate-pulse rounded-xl" /> }
+);
 import { ScanResultModal } from "@/components/scan/ScanResultModal";
 import { productsService } from "@/services/products.service";
 import { inventoryService } from "@/services/inventory.service";

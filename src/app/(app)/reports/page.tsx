@@ -6,9 +6,11 @@ import useSWR from "swr";
 import { format, subDays, parseISO } from "date-fns";
 import { reportsService } from "@/services/reports.service";
 import PageHeader from "@/components/layout/PageHeader";
-import RevenueChart from "@/components/dashboard/RevenueChart";
-import ProfitChart from "@/components/reports/ProfitChart";
-import WasteTrackingChart from "@/components/reports/WasteTrackingChart";
+import dynamic from "next/dynamic";
+
+const RevenueChart = dynamic(() => import("@/components/dashboard/RevenueChart"), { ssr: false });
+const ProfitChart = dynamic(() => import("@/components/reports/ProfitChart"), { ssr: false });
+const WasteTrackingChart = dynamic(() => import("@/components/reports/WasteTrackingChart"), { ssr: false });
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
